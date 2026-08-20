@@ -1,0 +1,27 @@
+{
+  "name": "autoware-harness",
+  "owner": {
+    "name": "Autoware Harness",
+    "email": "mamoru.sobue@tier4.jp"
+  },
+  "metadata": {
+    "description": "Curated list of Skill and Knowledge for Agent context",
+    "version": "0.0.0"
+  },
+  "plugins": [
+    {
+      "name": "autoware-harness",
+      "description": "Curated list of Skill and Knowledge for Agent context",
+      "version": "0.0.0",
+      "source": "./",
+      "author": {
+        "name": "soblin",
+        "email": "mamoru.sobue@tier4.jp"
+      },
+      "homepage": "https://github.com/autowarefoundation/autoware-harness",
+      "repository": "https://github.com/autowarefoundation/autoware-harness",
+      "license": "Apache-2.0",
+      "skills": "./skills/"
+    }
+  ]
+}

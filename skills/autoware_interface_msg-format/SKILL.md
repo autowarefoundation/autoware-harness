@@ -1,13 +1,19 @@
-# Autoware .msg File Style Guide
+---
+description: Use when /awh-if-msg-format reviews or lints .msg, .srv, .action files
+name: awh-if-msg-format
+allowed-tools: Read, Grep, Glob
+---
 
-This document defines the formatting and naming rules for all `.msg`, `.srv`, and `.action` files in this repository.
+# Autoware `.msg` File Style Guide
+
+This document defines the formatting and naming rules for all `.msg`, `.srv`, and `.action` files.
 
 **Upstream specification:**
 <https://autowarefoundation.github.io/autoware-documentation/main/contributing/coding-guidelines/ros-nodes/message-guidelines/>
 
 ---
 
-## 1. File structure
+## File structure
 
 A compliant `.msg` file follows this layout (sections separated by blank lines):
 
@@ -26,21 +32,21 @@ A compliant `.msg` file follows this layout (sections separated by blank lines):
 
 ---
 
-## 2. File header comment
+## File header comment
 
-- The **first line** must be a `#` comment.
+- The first line must be a `#` comment.
 - It must briefly state what the message represents and (if not obvious) which
   subsystem uses it.
 - Aim for 1–3 lines. Link to external documentation for deep context.
 
-**Good:**
+### Good
 
 ```
 # Estimated state of a detected object in the environment.
 # Published by perception nodes; consumed by prediction and planning.
 ```
 
-**Bad (no header):**
+### Bad
 
 ```
 uint32 id
@@ -49,7 +55,7 @@ float32 distance
 
 ---
 
-## 3. Field comments
+## Field comments
 
 Every field must have a comment block immediately above it (no blank line between the comment and the field).
 
@@ -60,7 +66,7 @@ The comment must:
 3. If `optional`: include `# default: <value>` on a separate comment line.
 4. Optionally include `# e.g. <value>` to show a representative value.
 
-**Good:**
+### Good
 
 ```
 # Unique object identifier assigned by the tracker. (required)
@@ -73,7 +79,7 @@ uint32 object_id
 float32 lateral_velocity
 ```
 
-**Bad (missing annotation):**
+### Bad(missing annotation)
 
 ```
 # Unique object identifier.
@@ -82,11 +88,11 @@ uint32 object_id
 
 ---
 
-## 4. Units
+## Units
 
-### 4-1. Default units — NO suffix
+### Default units
 
-When a field uses the default unit for its physical dimension, do **not** add any unit suffix to the field name.
+When a field uses the default unit for its physical dimension, **do not add any unit suffix** to the field name.
 
 | Dimension        | Default unit | Bad example            | Good example    |
 | ---------------- | ------------ | ---------------------- | --------------- |
@@ -98,9 +104,9 @@ When a field uses the default unit for its physical dimension, do **not** add an
 | Angular velocity | rad/s        | `yaw_rate_radps`       | `yaw_rate`      |
 | Angular accel.   | rad/s²       | `angular_accel_radps2` | `angular_accel` |
 
-### 4-2. Non-default units — approved suffixes only
+### Non-default units
 
-When a field intentionally uses a non-default unit, append **exactly** the suffix from the table below. No other spellings are accepted.
+When a field intentionally uses a non-default unit, **append exactly the suffix from the table below**. No other spellings are accepted.
 
 | Dimension | Unit        | Approved suffix | Bad alternatives         |
 | --------- | ----------- | --------------- | ------------------------ |
@@ -116,7 +122,7 @@ When a field intentionally uses a non-default unit, append **exactly** the suffi
 | Time      | hour        | `_hour`         | `_hr`, `_hours`          |
 | Velocity  | km/h        | `_kmph`         | `_km_h`, `_kmh`, `_kph`  |
 
-### 4-3. Suffix position — always a suffix, never a prefix
+### Suffix position
 
 The unit identifier must appear at the **end** of the field name.
 
@@ -127,14 +133,14 @@ float32 velocity_vehicle_kmph   # GOOD — unit is a suffix
 
 ---
 
-## 5. Constants and enumerations
+## Constants and enumerations
 
 - Constant names must be in `CONSTANT_CASE` (all uppercase, words separated by underscores, no leading or trailing underscore).
 - Each constant in a group (consecutive definitions of the same type) must have a **unique value**.
 - A constant group should be **mutually exclusive and collectively exhaustive** for the dimension it represents.
 - Each constant must have a preceding `#` comment explaining its meaning.
 
-**Good:**
+### Good
 
 ```
 # Object classification constants
@@ -148,7 +154,7 @@ uint8 OBJECT_CYCLIST    = 2
 uint8 OBJECT_CAR        = 3
 ```
 
-**Bad:**
+### Bad
 
 ```
 uint8 Object_Unknown = 0     # wrong case
@@ -158,7 +164,7 @@ uint8 Car = 0                # wrong case, duplicate value
 
 ---
 
-## 6. Array fields
+## Array fields
 
 - Use **unbounded dynamic arrays** (`type[]`), not bounded arrays (`type[N]`).
 - Exception: only use `[N]` when the size is a hard physical constraint (e.g. a 4×4 matrix represented as `float64[16]`).
@@ -170,7 +176,7 @@ DetectedObject[5] objects     # BAD — avoid unless physically fixed size
 
 ---
 
-## 7. Message naming for plural wrappers
+## Message naming for plural wrappers
 
 If a message exists solely to wrap an array of another message type, append `Array` to the filename.
 
@@ -181,13 +187,7 @@ DetectedObjectArray.msg  # plural wrapper: contains DetectedObject[] objects
 
 ---
 
-## 8. Line length
-
-Keep lines at or below **100 characters**. This matches the broader Autoware coding style and avoids horizontal scrolling in code review.
-
----
-
-## 9. Complete example
+## Example
 
 ```
 # Estimated state of a single detected object.

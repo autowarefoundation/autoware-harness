@@ -1,0 +1,37 @@
+{
+  "name": "autoware-harness",
+  "version": "0.0.0",
+  "description": "Curated list of Skill and Knowledge for Agent context",
+  "owner": {
+    "name": "soblin",
+    "email": "mamoru.sobue@tier4.jp",
+    "url": "https://autoware.org/"
+  },
+  "homepage": "https://github.com/autowarefoundation/autoware-harness",
+  "repository": "https://github.com/autowarefoundation/autoware-harness",
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "agent-harness",
+    "Autoware",
+    "Autonomous Driving"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Autwoare Harness",
+    "shortDescription": "Curated list of Skill and Knowledge for Agent context",
+    "longDescription": "Curated list of Skill and Knowledge for Agent context. Call by @awh-<component>-<item>",
+    "developerName": "soblin",
+    "category": "Software Development",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Inspect this repository's category and recognize relevant Skills to align with Autoware Development guide"
+    ],
+    "websiteURL": "https://github.com/autowarefoundation/autoware-harness",
+    "screenshots": []
+  }
+}
