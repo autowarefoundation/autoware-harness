@@ -2,7 +2,7 @@
   "name": "autoware-harness",
   "version": "0.0.0",
   "description": "Curated list of Skill and Knowledge for Agent context",
-  "owner": {
+  "author": {
     "name": "soblin",
     "email": "mamoru.sobue@tier4.jp",
     "url": "https://autoware.org/"
@@ -18,9 +18,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Autwoare Harness",
+    "displayName": "Autoware Harness",
     "shortDescription": "Curated list of Skill and Knowledge for Agent context",
-    "longDescription": "Curated list of Skill and Knowledge for Agent context. Call by @awh-<component>-<item>",
+    "longDescription": "Curated list of Skill and Knowledge for Agent context. Call by @awh-***",
     "developerName": "soblin",
     "category": "Software Development",
     "capabilities": [
@@ -31,7 +31,6 @@
     "defaultPrompt": [
       "Inspect this repository's category and recognize relevant Skills to align with Autoware Development guide"
     ],
-    "websiteURL": "https://github.com/autowarefoundation/autoware-harness",
-    "screenshots": []
+    "websiteURL": "https://github.com/autowarefoundation/autoware-harness"
   }
 }
