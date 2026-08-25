@@ -1,20 +1,20 @@
 ---
 description: |
-Use this skill when one creates / reviews or lints .msg, .srv, .action files to align with Autoware's style guideline.
-When prompted to lint given message files, report the result in the specified format.
+  Use this skill when creating, reviewing, or linting .msg, .srv, or .action files to align with Autoware's style guidelines.
+  When prompted to lint given message files, report the result in the specified format.
 name: awh-interface-msg-format
 allowed-tools: Read, Grep, Glob, WebFetch
 ---
 
-# Autoware Harness for message schema format
+# Autoware Harness message schema format
 
-One should refer to [latest document](https://autowarefoundation.github.io/autoware-documentation/main/contributing/coding-guidelines/ros-nodes/message-guidelines/) as the single source of truth.
+Refer to the [latest document](https://autowarefoundation.github.io/autoware-documentation/main/contributing/coding-guidelines/ros-nodes/message-guidelines/) as the single source of truth.
 
-The rest of this document for validating each item.
+The rest of this document describes how to validate each item.
 
 ## Filename
 
-Each filename must be PascalCase.
+Each filename must be in PascalCase.
 
 If a message exists solely to wrap an array of another message type, append `Array` to the filename.
 
@@ -24,7 +24,7 @@ DetectedObjectArray.msg  # plural wrapper: contains DetectedObject[] objects
 
 ## File header comment
 
-If file header is provided, it should briefly state what the message represents and link to external documentation or resources for describing additional context.
+If a file header is provided, it should briefly state what the message represents and link to external documentation or resources that provide additional context.
 
 ## Field comment
 
@@ -33,7 +33,7 @@ Every field must have a comment block immediately above it (no empty line betwee
 - Describe what the field represents in one line.
 - Declare `(required)` or `(optional)`.
   - If `optional`: include `# default: <value>` on a separate comment line.
-- Optionally include `# e.g. <value>` to describle an example value.
+- Optionally include `# e.g. <value>` to show an example value.
 
 ## Field name
 
