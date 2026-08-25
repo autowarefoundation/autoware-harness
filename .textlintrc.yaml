@@ -13,6 +13,11 @@ rules:
 
   common-misspellings: true
 
+  # enforce English spacing around parentheses: "text (aside) text".
+  prh:
+    rulePaths:
+      - .textlint.prh-en-parentheses.yaml
+
   write-good:
     severity: warning
     passive: false # passive voice is fine in specifications.
