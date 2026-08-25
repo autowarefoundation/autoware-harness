@@ -12,13 +12,13 @@ One should refer to [latest document](https://autowarefoundation.github.io/autow
 
 The rest of this document for validating each item.
 
-## File name
+## Filename
 
-Each file name must be PascalCase.
+Each filename must be PascalCase.
 
 If a message exists solely to wrap an array of another message type, append `Array` to the filename.
 
-```
+```bash
 DetectedObjectArray.msg  # plural wrapper: contains DetectedObject[] objects
 ```
 
@@ -28,7 +28,7 @@ If file header is provided, it should briefly state what the message represents 
 
 ## Field comment
 
-Every field must have a comment block immediately above it (no blank line between the comment and the field).
+Every field must have a comment block immediately above it (no empty line between the comment and the field).
 
 - Describe what the field represents in one line.
 - Declare `(required)` or `(optional)`.
@@ -46,7 +46,7 @@ Every field name must be in `snake_case`.
 When a field uses the default unit for its physical dimension, do not add any unit suffix to the field name.
 
 | Dimension     | Default unit | Bad example            | Good example    |
-|---------------|--------------|------------------------|-----------------|
+| ------------- | ------------ | ---------------------- | --------------- |
 | Distance      | m            | `path_length_m`        | `path_length`   |
 | Angular accel | rad/s²       | `angular_accel_radps2` | `angular_accel` |
 
@@ -55,13 +55,13 @@ When a field uses the default unit for its physical dimension, do not add any un
 When a field intentionally uses a non-default unit, append exactly the suffix from the table below.
 
 | Dimension | Unit      | Approved suffix | Bad alternatives        |
-|-----------|-----------|-----------------|-------------------------|
+| --------- | --------- | --------------- | ----------------------- |
 | Distance  | nanometer | `_nm`           | `_nanometer`            |
 | Velocity  | km/h      | `_kmph`         | `_km_h`, `_kmh`, `_kph` |
 
 The unit identifier must appear at the end of the field name.
 
-```
+```bash
 float32 kmph_velocity_vehicle # BAD — unit is a prefix
 float32 velocity_vehicle_kmph # GOOD — unit is a suffix
 ```
@@ -71,7 +71,7 @@ float32 velocity_vehicle_kmph # GOOD — unit is a suffix
 - Use unbounded dynamic arrays (`type[]`), not bounded arrays (`type[N]`).
 - Exception: only use `[N]` when the size is a hard physical constraint (e.g. a 4×4 matrix represented as `float64[16]`).
 
-```
+```bash
 DetectedObject[]  objects # GOOD
 DetectedObject[5] objects # BAD — avoid unless physically fixed size
 ```
@@ -82,7 +82,7 @@ DetectedObject[5] objects # BAD — avoid unless physically fixed size
 - A constant group must be **mutually exclusive and collectively exhaustive** for the dimension it represents.
 - Each constant must have a preceding `#` comment explaining its meaning.
 
-```
+```txt
 # Object classification constants
 # Object class is unknown or could not be determined
 uint8 OBJECT_UNKNOWN = 0

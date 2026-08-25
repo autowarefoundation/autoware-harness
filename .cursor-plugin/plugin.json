@@ -10,18 +10,8 @@
   "homepage": "https://github.com/autowarefoundation/autoware-harness",
   "repository": "https://github.com/autowarefoundation/autoware-harness",
   "license": "Apache-2.0",
-  "keywords": [
-    "skills",
-    "agent-harness",
-    "Autoware",
-    "Autonomous Driving"
-  ],
+  "keywords": ["skills", "agent-harness", "Autoware", "Autonomous Driving"],
   "category": "Software Development",
-  "tags": [
-    "skills",
-    "agent-harness",
-    "Autoware",
-    "Autonomous Driving"
-  ],
+  "tags": ["skills", "agent-harness", "Autoware", "Autonomous Driving"],
   "skills": "./skills/"
 }

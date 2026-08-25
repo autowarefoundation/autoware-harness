@@ -1,0 +1,6 @@
+printWidth: 100
+tabWidth: 2
+overrides:
+  - files: [.devcontainer/devcontainer.json, .vscode/*.json]
+    options:
+      parser: jsonc

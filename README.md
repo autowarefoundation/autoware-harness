@@ -21,18 +21,18 @@ Consolidating all of this into a **single source of truth** that everyone refers
 
 Over time, this also helps developers converge on a shared consensus, and lets external users lean on agents to quickly access developer-level context.
 
-# Installation
+## Installation
 
-## Claude Code / GitHub Copilot CLI
+### Claude Code / GitHub Copilot CLI
 
-```
+```txt
 /plugin marketplace add autowarefoundation/autoware-harness
 /plugin install autoware-harness@autoware-harness
 ```
 
-## Codex CLI
+### Codex CLI
 
-```
+```txt
 /plugins
 ```
 
@@ -42,19 +42,19 @@ Open the plugin browser inside a Codex session, add `autowarefoundation/autoware
 codex plugin marketplace add autowarefoundation/autoware-harness
 ```
 
-## Cursor
+### Cursor
 
 1. Dashboard → Plugins → Team Marketplaces → Add Marketplace → Import from Repo, and point it at `autowarefoundation/autoware-harness`.
 2. Customize (sidebar) → find `autoware-harness` → Install
 
-# Usage
+## Usage
 
 Coding Agents will automatically select and load relevant skills. Or you can explicitly call specific skill by typing `/awh-` `TAB` and selecting appropriate one.
 
-# Feature Request / Issue Report
+## Feature Request / Issue Report
 
 If any issues are found (the agent not working appropriately, skills/commands not recognized, etc.) please submit a PR or an issue following the template.
 
-# Development Guide
+## Development Guide
 
 See `docs/development.md`.

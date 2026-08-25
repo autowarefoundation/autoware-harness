@@ -6,7 +6,7 @@ This repository supports following coding agents:
 
 - Claude Code
 - Codex
-- Github Copilot
+- GitHub Copilot
 - Cursor
 - OpenCode
 

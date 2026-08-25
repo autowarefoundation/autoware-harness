@@ -10,12 +10,7 @@
   "homepage": "https://github.com/autowarefoundation/autoware-harness",
   "repository": "https://github.com/autowarefoundation/autoware-harness",
   "license": "Apache-2.0",
-  "keywords": [
-    "skills",
-    "agent-harness",
-    "Autoware",
-    "Autonomous Driving"
-  ],
+  "keywords": ["skills", "agent-harness", "Autoware", "Autonomous Driving"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Autoware Harness",
@@ -23,11 +18,7 @@
     "longDescription": "Curated list of Skill and Knowledge for Agent context. Call by @awh-***",
     "developerName": "soblin",
     "category": "Software Development",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
+    "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
       "Inspect this repository's category and recognize relevant Skills to align with Autoware Development guide"
     ],

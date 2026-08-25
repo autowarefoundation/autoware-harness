@@ -4,11 +4,11 @@
 
 Although there are various coding agents other than the ones supported in thie project, most of them have 3 working units in common - `Agent` (sub agent, like `~/.copilot/agents`), `Skill` (like `~/.claude/skills`) and `Command` (like `~/.codex/prompts/`). This project categorizes them as follows:
 
-- `Agent` defines *how AI should act* when it make plans, judges and initiate tasks. When it is triggered as a sub agent, it acts in a *new context* and returns the result to main context.
+- `Agent` defines _how AI should act_ when it make plans, judges and initiate tasks. When it is triggered as a sub agent, it acts in a _new context_ and returns the result to main context.
   - `Agent` is **explicitly called by its name**.
-- `Skill` is explicitly triggered by the agent or *picked up* by the context to provide knowledge on *how AI should tackle* specific tasks in *current context*. Also in this project, `Skill` is expected to *inject appropriate domain knowledge* into the context.
+- `Skill` is explicitly triggered by the agent or _picked up_ by the context to provide knowledge on _how AI should tackle_ specific tasks in _current context_. Also in this project, `Skill` is expected to _inject appropriate domain knowledge_ into the context.
   - `Skill` **may not be explicitly called by its name** . Therefore its `description` field needs to have enough information so that the agent can pick up appropriate one by itself based on the context.
-- `Command` is a set of procedures and prompts which is repeated many times in the development cycle. Thus it is expeted to have predictable effect. In this project, a `Command` *should* only rely on **given prompt** (aka `#ARGUMENTS` in Claude) and **explict call for other Skill / Command**, not on the context in which and when it is called.
+- `Command` is a set of procedures and prompts which is repeated many times in the development cycle. Thus it is expeted to have predictable effect. In this project, a `Command` _should_ only rely on **given prompt** (aka `#ARGUMENTS` in Claude) and **explict call for other Skill / Command**, not on the context in which and when it is called.
   - `Command` is **explicity called by its name** and is invoked by **humans**.
 
 This project proritizes `Skill`(and boilerplate `Command`) over the others to provide **common basic building blocks** for Autoware developers (at least until their configuratins get stable -- see `./platform.md`).
