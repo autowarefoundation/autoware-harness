@@ -7,11 +7,12 @@
 
 The table below summarizes the support status of each feature **for project scope**.
 
-| Coding Agent | Context File                                        | Skill                                                                   | Command                                   | Agent                           |
-| ------------ | --------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------- | ------------------------------- |
-| Claude       | `CLAUDE.md`                                         | `.claude/skills`                                                        | `Skill` is preferred ([[1]](#references)) | Markdown under `.claude/agents` |
-| Codex        | `AGENTS.md`                                         | `.codex/skills`                                                         | `Skill` is preferred ([[2]](#references)) | defined in `.codex/config.toml` |
-| Copilot      | `AGENTS.md`, `CLAUDE.md`, etc. ([[3]](#references)) | Multiple directories in given order and precedence ([[4]](#references)) | Same as `Skill`                           | Same as `Skill`                 |
+| Coding Agent | Context File                                        | Skill                                                                   | Command                                   | Agent                                                |
+| ------------ | --------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
+| Claude       | `CLAUDE.md`                                         | `.claude/skills`                                                        | `Skill` is preferred ([[1]](#references)) | Markdown under `.claude/agents`                      |
+| Codex        | `AGENTS.md`                                         | `.codex/skills`                                                         | `Skill` is preferred ([[2]](#references)) | defined in `.codex/config.toml`                      |
+| Copilot      | `AGENTS.md`, `CLAUDE.md`, etc. ([[3]](#references)) | Multiple directories in given order and precedence ([[4]](#references)) | Same as `Skill`                           | Same as `Skill`                                      |
+| Cursor       | `AGENTS.md`, `.cursor/rules` ([[5]](#references))   | `.cursor/skills` ([[6]](#references))                                   | `Skill` is preferred ([[7]](#references)) | Markdown under `.cursor/agents` ([[8]](#references)) |
 
 Since the distribution of `Agent` and `Command` is not well standardized, this project prioritizes `Skill` and a subset of `Command`s.
 
@@ -19,18 +20,18 @@ Since the distribution of `Agent` and `Command` is not well standardized, this p
 
 `Command` distribution through the plugin manifest differs per platform. The table below reflects the official manifest specifications.
 
-| Coding Agent | Manifest field for `Command`       | Discovered files                   |
-| ------------ | ---------------------------------- | ---------------------------------- |
-| Claude       | `commands` ([[5]](#references))    | flat `*.md`                        |
-| Cursor       | `commands` ([[6]](#references))    | `.md`, `.mdc`, `.markdown`, `.txt` |
-| Copilot      | `commands` ([[7]](#references))    | files under `commands/`            |
-| Codex        | not supported ([[8]](#references)) | —                                  |
+| Coding Agent | Manifest field for `Command`        | Target files                       |
+| ------------ | ----------------------------------- | ---------------------------------- |
+| Claude       | `commands` ([[9]](#references))     | flat `*.md`                        |
+| Cursor       | `commands` ([[10]](#references))    | `.md`, `.mdc`, `.markdown`, `.txt` |
+| Copilot      | `commands` ([[11]](#references))    | files under `commands/`            |
+| Codex        | not supported ([[12]](#references)) | —                                  |
 
 Therefore a single `commands/` directory at the repository root can be shared by Claude, Cursor and Copilot. Claude discovers it automatically, while Cursor and Copilot need an explicit `"commands": "./commands/"` entry in their manifest.
 
 Codex has no `Command` (or prompt) component in its plugin manifest, so plugins cannot populate `~/.codex/prompts`. A workflow that must be available on Codex has to be written as a `Skill`.
 
-Note that both Claude and Copilot recommend the `skills/` layout for new plugins (Claude states it explicitly ([[5]](#references)), and Copilot lets `Skill` override `Command` in its loading order ([[4]](#references))), and that Codex deprecates `Command` in favor of `Skill`([[2]](#references)). This is consistent with this project prioritizing `Skill`.
+Note that both Claude and Copilot recommend the `skills/` layout for new plugins (Claude states it explicitly ([[9]](#references)), and Copilot lets `Skill` override `Command` in its loading order ([[4]](#references))), and that Codex deprecates `Command` in favor of `Skill`([[2]](#references)). This is consistent with this project prioritizing `Skill`.
 
 ### Distributing `Agent` via plugin manifests
 
@@ -38,16 +39,16 @@ The situation mirrors `Command`: Claude, Cursor and Copilot all take an `agents`
 
 Codex has no `agents` field in its plugin manifest. Its subagents are configured in `.codex/config.toml`.
 
-| Coding Agent | Manifest field for `Agent`         | Discovered files             |
-| ------------ | ---------------------------------- | ---------------------------- |
-| Claude       | `agents` ([[5]](#references))      | flat `*.md` under `agents/`  |
-| Cursor       | `agents` ([[9]](#references))      | `.md`, `.mdc`, `.markdown`   |
-| Copilot      | `agents` ([[7]](#references))      | `*.agent.md` under `agents/` |
-| Codex        | not supported ([[8]](#references)) | —                            |
+| Coding Agent | Manifest field for `Agent`          | Discovered files             |
+| ------------ | ----------------------------------- | ---------------------------- |
+| Claude       | `agents` ([[9]](#references))       | flat `*.md` under `agents/`  |
+| Cursor       | `agents` ([[13]](#references))      | `.md`, `.mdc`, `.markdown`   |
+| Copilot      | `agents` ([[11]](#references))      | `*.agent.md` under `agents/` |
+| Codex        | not supported ([[12]](#references)) | —                            |
 
 ## Support status of YAML front matter
 
-All four platforms implement the Agent Skills open standard ([[10]](#references)), whose front matter is the portable baseline:
+All four platforms support the Agent Skills open standard ([[14]](#references)), whose front matter is the portable baseline:
 
 | Field           | Required | Constraints                                                                     |
 | --------------- | -------- | ------------------------------------------------------------------------------- |
@@ -58,25 +59,25 @@ All four platforms implement the Agent Skills open standard ([[10]](#references)
 | `metadata`      | No       | Arbitrary string-to-string map                                                  |
 | `allowed-tools` | No       | Space-separated list of pre-approved tools (experimental in the spec)           |
 
-Per-platform acceptance of those fields is as follows.
+Per-platform support of those fields is as follows.
 
 | Coding Agent | Required                                        | Also adopted from the standard                          | Reference           |
 | ------------ | ----------------------------------------------- | ------------------------------------------------------- | ------------------- |
-| Claude       | none (`name` and `description` are recommended) | `license`, `compatibility`, `metadata`, `allowed-tools` | [[11]](#references) |
-| Codex        | `name`, `description`                           | not documented                                          | [[12]](#references) |
-| Cursor       | `name`, `description`                           | `metadata`                                              | [[13]](#references) |
-| Copilot      | `name`, `description`                           | `license`, `allowed-tools`                              | [[14]](#references) |
+| Claude       | none (`name` and `description` are recommended) | `license`, `compatibility`, `metadata`, `allowed-tools` | [[15]](#references) |
+| Codex        | `name`, `description`                           | not documented                                          | [[16]](#references) |
+| Cursor       | `name`, `description`                           | `metadata`                                              | [[6]](#references)  |
+| Copilot      | `name`, `description`                           | `license`, `allowed-tools`                              | [[17]](#references) |
 
 Each platform additionally defines its own extensions as follows:
 
-- Claude: `when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `disallowed-tools`, `model`, `effort`, `context`, `agent`, `background`, `hooks`, `paths`, `shell`([[11]](#references))
+- Claude: `when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `disallowed-tools`, `model`, `effort`, `context`, `agent`, `background`, `hooks`, `paths`, `shell`([[15]](#references))
 - Cursor: `paths`, `disable-model-invocation`, `icon`, `color`
 
 Therefore this project mandates the following fields:
 
 - `name`: Required
 - `description`: Required
-- `allowed-tools`: Optional, but note that Cursor does not document it as a `SKILL.md` front matter field ([[13]](#references)), so it is not honored there
+- `allowed-tools`: Optional, but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there
 
 ## References
 
@@ -84,13 +85,16 @@ Therefore this project mandates the following fields:
 - [2](https://github.com/openai/codex/releases/tag/rust-v0.118.0)
 - [3](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions#types-of-custom-instructions)
 - [4](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference#loading-order-and-precedence)
-- [5](https://code.claude.com/docs/en/plugins-reference#component-path-fields)
-- [6](https://cursor.com/docs/reference/plugins#commands-format)
-- [7](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference#component-path-fields)
-- [8](https://developers.openai.com/codex/plugins/build)
-- [9](https://cursor.com/docs/reference/plugins#agents-format)
-- [10](https://agentskills.io/specification#frontmatter)
-- [11](https://code.claude.com/docs/en/skills#frontmatter-reference)
-- [12](https://learn.chatgpt.com/docs/build-skills#create-a-skill)
-- [13](https://cursor.com/docs/context/skills#frontmatter-fields)
-- [14](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills#example-skillmd-file)
+- [5](https://cursor.com/docs/context/rules)
+- [6](https://cursor.com/docs/context/skills#frontmatter-fields)
+- [7](https://cursor.com/docs/context/skills)
+- [8](https://cursor.com/docs/agent/subagents)
+- [9](https://code.claude.com/docs/en/plugins-reference#component-path-fields)
+- [10](https://cursor.com/docs/reference/plugins#commands-format)
+- [11](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference#component-path-fields)
+- [12](https://developers.openai.com/codex/plugins/build)
+- [13](https://cursor.com/docs/reference/plugins#agents-format)
+- [14](https://agentskills.io/specification#frontmatter)
+- [15](https://code.claude.com/docs/en/skills#frontmatter-reference)
+- [16](https://learn.chatgpt.com/docs/build-skills#create-a-skill)
+- [17](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills#example-skillmd-file)
