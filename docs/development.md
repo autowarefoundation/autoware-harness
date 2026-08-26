@@ -34,3 +34,30 @@ Even if you do not have access to local environment, you can open up `GitHub Cod
 ## Implementation
 
 See [format.md](./format.md).
+
+## Local verification
+
+Only `.agents/skills` is loaded when you open this repository in coding agent CLIs. To verify the skills under `skills/`, install this repository as a local plugin in the following manner.
+
+> [!TIP]
+> To avoid conflict with the same `autoware-harness` installed on the host computer, `devcontainer` is useful to test on a clean environment.
+
+### Install the working tree as a marketplace
+
+```text
+/plugin marketplace add <path to autoware-harness>
+/plugin install autoware-harness@autoware-harness
+```
+
+### Reflect recent changes under `skills/`
+
+```text
+/plugin marketplace update autoware-harness
+```
+
+### Clean up
+
+```text
+/plugin uninstall autoware-harness@autoware-harness
+/plugin marketplace remove autoware-harness
+```
