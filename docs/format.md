@@ -43,6 +43,18 @@ If the skill is expected to work as a `SubAgent`, add
 - `context: fork`
 - TODO: permission (the `agent` field is deferred together with it, see [sub-agent.md](./sub-agent.md))
 
+Because a forked skill cannot ask the user anything, `context: fork` constrains what the skill may be allowed to do. See [Approval guardrail](#approval-guardrail).
+
+### Validation
+
+`scripts/validate-skill-front-matter.py` checks every `SKILL.md` against the rules above and runs as a `pre-commit` hook.
+
+```bash
+pre-commit run validate-skill-front-matter --all-files
+```
+
+It reports a violation with the file, the offending field, and the rule that was broken.
+
 ## Body
 
 If the body consists of several units like steps, instructions, sub domains and **exceeds 500 lines**, it is highly recommended to divide them into `references/` folder ([reference](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns)).
