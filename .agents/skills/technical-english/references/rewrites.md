@@ -4,10 +4,30 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 ## Table of contents
 
+- [Audience](#audience)
 - [Voice and mood](#voice-and-mood)
 - [Sentences](#sentences)
 - [Word choice](#word-choice)
 - [Structure and formatting](#structure-and-formatting)
+
+## Audience
+
+### A1 — write to the reader the file actually has
+
+In `SKILL.md`, the agent is the reader and the human is a third party.
+
+- Bad: As a user, you should then approve the findings before they are applied.
+- Good: Ask the user to approve the findings, then apply them.
+
+### A2 — keep only what changes the agent's behavior
+
+- Bad: Naming is a long-standing source of debate in this project, and the maintainers settled on kebab-case after a lengthy discussion. Use kebab-case.
+- Good: Use kebab-case for the skill name.
+
+### A3 — mark every step the agent cannot perform
+
+- Bad: Run `/plugin marketplace update autoware-harness` to refresh the marketplace.
+- Good: `/plugin` is interactive, so the agent cannot run it. Ask the user to run `/plugin marketplace update autoware-harness`.
 
 ## Voice and mood
 
@@ -95,8 +115,8 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 ### L2 — numbered lists only for ordered steps
 
-- Bad: a numbered list of the supported coding agents.
-- Good: a bullet list of the supported coding agents; a numbered list for the installation steps.
+- Bad: A numbered list presents the supported coding agents, which have no order.
+- Good: A bullet list presents the supported coding agents, and a numbered list presents the installation steps.
 
 ### H1 — sentence-case noun-phrase headings
 
@@ -110,7 +130,7 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 ### C2 — introduce and tag code blocks
 
-- Bad: an untagged block with no lead-in sentence.
+- Bad: An untagged code block appears with no lead-in sentence.
 - Good:
 
   Lint every tracked file:
