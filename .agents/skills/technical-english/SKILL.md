@@ -14,8 +14,8 @@ Proofread Markdown documentation so that it reads as concise, unambiguous techni
 
 The [Google developer documentation style guide](https://developers.google.com/style) is the single source of truth for the rules below. Consult it (`WebFetch`) whenever a case is not covered here.
 
-Scope: Markdown prose in this repository — the readme, `docs/**/*.md`, and the `SKILL.md` and `references/*.md` files under `skills/`.
-Out of scope: code comments, commit messages, and the schema rules of `.msg` / `.srv` / `.action` field comments, which belong to `awh-interface-msg-format`.
+- Scope: Markdown prose in this repository — the readme, `docs/**/*.md`, and the `SKILL.md` and `references/*.md` files under `skills/`.
+- Out of scope: Other types of files, and fenced code blocks, inline code spans, URLs, or link inside Markdown.
 
 The `pre-commit` hooks already run `textlint`, `markdownlint`, and `prettier`, so mechanical issues are fixed outside this skill. Review only what those hooks cannot judge.
 
@@ -50,8 +50,6 @@ The `pre-commit` hooks already run `textlint`, `markdownlint`, and `prettier`, s
 
 4. Ask the user which findings to apply. Apply them with `Edit` only after approval, and change nothing else.
 
-<!-- TODO: decide whether the report should also be writable as a review comment on the PR, and how. -->
-
 ## Rule set
 
 Each rule has a stable ID so findings stay traceable. Full before/after examples live in [references/rewrites.md](./references/rewrites.md).
@@ -65,13 +63,10 @@ Each rule has a stable ID so findings stay traceable. Full before/after examples
 
 ### Sentences
 
-- `S1` One idea per sentence. Split sentences that chain clauses with "and", "but", or a semicolon.
 - `S2` Delete filler openings such as "Note that", "It should be noted that", "Basically", "Simply", "In order to" (use "to").
 - `S3` Put the condition before the instruction: "If X, do Y", not "Do Y if X".
 - `S4` Avoid nominalization. Prefer the verb ("configure") over the noun phrase ("perform the configuration of").
 - `S5` Do not use "please" in instructions.
-
-<!-- TODO: add a sentence-length guideline once the maintainers agree on a concrete limit. -->
 
 ### Word choice
 
@@ -86,9 +81,6 @@ Each rule has a stable ID so findings stay traceable. Full before/after examples
 - `L1` Keep list items parallel in grammatical form, and either all sentences or all fragments.
 - `L2` Use a numbered list only for ordered steps; use a bullet list otherwise.
 - `H1` Use sentence case for headings, and phrase them as noun phrases or gerunds, not full sentences.
-- `H2` Do not skip heading levels, and do not leave a heading immediately followed by another heading with no prose.
 - `C1` Mark identifiers, paths, commands, and literal values as inline code.
 - `C2` Introduce a code block with a sentence that states what it does, and tag the block with its language.
 - `C3` Use descriptive link text. Do not use "here" or a bare URL as link text.
-
-<!-- TODO: record project decisions on Oxford comma, en/em dash usage, and whether one-sentence-per-line Markdown is required. -->

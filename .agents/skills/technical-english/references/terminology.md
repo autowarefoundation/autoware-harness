@@ -2,7 +2,7 @@
 
 Preferred word choices and words to avoid. Applies to rule `W1`.
 
-Autoware domain terms are out of scope here; they belong to the glossary skill.
+Autoware domain terms are out of scope here — they belong to the glossary skill.
 
 ## General technical terms
 
@@ -16,8 +16,6 @@ Autoware domain terms are out of scope here; they belong to the glossary skill.
 | see                | refer to, please refer to      |
 | turn off / disable | deactivate, kill               |
 
-## Words to avoid outright
+## Words to avoid
 
-`obviously`, `simply`, `just`, `easy`, `basically`, `of course`, `note that`, `please`, `should be noted`.
-
-<!-- TODO: add inclusive-language replacements (e.g. allowlist/blocklist) once the project states its position. -->
+`obviously`, `of course`, `please`
