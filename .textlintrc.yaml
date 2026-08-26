@@ -1,0 +1,31 @@
+filters:
+  # allow <!-- textlint-disable --> / <!-- textlint-enable --> escape hatches.
+  comments: true
+
+rules:
+  # enforce canonical spelling of technical terms (GitHub, Markdown, JavaScript, ...).
+  terminology:
+    defaultTerms: true
+    # exclusions: copy the entry from terms.jsonc verbatim
+    # (for an array entry, only its first element).
+    exclude:
+      - repo\b # "Repo" is acceptable shorthand in this repository.
+
+  common-misspellings: true
+
+  # enforce English spacing around parentheses: "text (aside) text".
+  prh:
+    rulePaths:
+      - .textlint.prh-en-parentheses.yaml
+
+  write-good:
+    severity: warning
+    passive: false # passive voice is fine in specifications.
+    so: false
+    adverb: false
+    eprime: false
+    tooWordy: false # too noisy on technical vocabulary ("methodology", "multiple").
+    weasel: true
+    thereIs: true
+    cliches: true
+    illusion: true

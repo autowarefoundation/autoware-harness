@@ -1,0 +1,40 @@
+{
+  "name": "autoware-harness-devcontainer",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+
+  "remoteUser": "vscode",
+
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "/ssh-agent"
+  },
+
+  "runArgs": ["--name=autoware-harness-devcontainer"],
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+
+  "mounts": [
+    { "type": "volume", "source": "autoware-harness-cache", "target": "/home/vscode/.cache" },
+    { "type": "bind", "source": "${localEnv:HOME}/.ssh", "target": "/home/vscode/.ssh" }
+  ],
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+    "ghcr.io/devcontainers-extra/features/npm-packages:latest": {
+      "packages": "@openai/codex,@google/gemini-cli"
+    },
+    "ghcr.io/dirien/devcontainer-features/opencode:0": {},
+    // for keeping agent credential even after --remove-existing-container
+    "ghcr.io/fjktkm/devcontainer-features/agent-persistence:1": {}
+  },
+
+  "postCreateCommand": ".devcontainer/post_create.sh"
+}

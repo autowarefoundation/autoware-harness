@@ -1,0 +1,19 @@
+{
+  "name": "autoware-harness",
+  "description": "Curated list of Skill and Knowledge for Agent context",
+  "owner": {
+    "name": "soblin",
+    "email": "mamoru.sobue@tier4.jp"
+  },
+  "plugins": [
+    {
+      "name": "autoware-harness",
+      "description": "common harness for Autoware developers",
+      "source": "./",
+      "author": {
+        "name": "soblin",
+        "email": "mamoru.sobue@tier4.jp"
+      }
+    }
+  ]
+}

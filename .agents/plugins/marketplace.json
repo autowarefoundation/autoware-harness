@@ -1,0 +1,15 @@
+{
+  "name": "autoware-harness",
+  "interface": {
+    "displayName": "Autoware Harness"
+  },
+  "plugins": [
+    {
+      "name": "autoware-harness",
+      "source": {
+        "source": "local",
+        "path": "./"
+      }
+    }
+  ]
+}

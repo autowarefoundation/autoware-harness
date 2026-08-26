@@ -1,0 +1,12 @@
+failure-threshold: warning
+
+ignored:
+  - DL3008
+  - DL3009
+  - DL3026
+  - DL3013
+  - DL3004
+
+trustedRegistries:
+  - ghcr.io
+  - mcr.microsoft.com
