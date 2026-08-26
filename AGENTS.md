@@ -20,6 +20,8 @@ To avoid the accident in which multiple agents (including the user themselves) e
 - before directly editing files on the repository
 - before merging worktree branches into the feature branch
 
+When making a commit, always add `--signoff` flag.
+
 ### PR process
 
 When an agent creates a PR, it must submit it as a draft PR. Leave it draft until the maintainer opens it up, or until the user gives approval from the prompt and tells the agent to mark it as ready.
