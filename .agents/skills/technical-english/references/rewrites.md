@@ -33,11 +33,6 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 ## Sentences
 
-### S1 — one idea per sentence
-
-- Bad: The skill reads the target files and it groups the findings by rule and then it prints a table.
-- Good: The skill reads the target files. It groups the findings by rule and prints a table.
-
 ### S2 — no filler openings
 
 - Bad: Note that in order to lint the documents, you basically just need `pre-commit`.
@@ -57,8 +52,6 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 - Bad: Please refer to the design document.
 - Good: See the design document.
-
-<!-- TODO: add examples drawn from real review findings in this repository. -->
 
 ## Word choice
 
@@ -109,11 +102,6 @@ Each section shows the minimal edit that satisfies the rule. Rule IDs match [SKI
 
 - Bad: `## How To Configure The Local Marketplace`
 - Good: `## Configuring the local marketplace`
-
-### H2 — no skipped or stacked headings
-
-- Bad: `## Architecture` followed immediately by `#### Skill layout`.
-- Good: `## Architecture`, one sentence of context, then `### Skill layout`.
 
 ### C1 — inline code for identifiers
 
