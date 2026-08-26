@@ -11,7 +11,7 @@ Although there are many coding agents besides the ones supported by this project
 - `Command` is a set of procedures and prompts that is repeated many times during the development cycle. It is therefore expected to have a predictable effect. In this project, a `Command` _should_ rely only on the **given prompt** (i.e. `#ARGUMENTS` in Claude) and on **explicit calls to other Skills / Commands**, not on the context in which and when it is called.
   - `Command` should be **explicitly called by its name** and invoked by **humans**.
 
-This project prioritizes `Skill` (and boilerplate `Command`) over the others in order to provide **common basic building blocks** for Autoware developers, at least until their configurations stabilize — see `./platform.md`.
+This project prioritizes `Skill` (and boilerplate `Command`) over the others in order to provide **common basic building blocks** for Autoware developers, at least until their configurations stabilize — see [platform.md](./platform.md) for more details.
 
 ## Repository Structure
 

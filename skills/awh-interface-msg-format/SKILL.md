@@ -4,6 +4,7 @@ description: |
   When prompted to lint given message files, report the result in the specified format.
 name: awh-interface-msg-format
 allowed-tools: Read, Grep, Glob, WebFetch
+context: fork
 ---
 
 # Autoware Harness message schema format

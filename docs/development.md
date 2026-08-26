@@ -22,7 +22,7 @@ Each feature name should be composed as follows:
 
 ## Agent vs Skill vs Command
 
-See `./design.md`.
+See [design.md.](./design.md)
 
 ## Development Environment
 
@@ -40,4 +40,4 @@ Even if you do not have access to local environment, you can open up `GitHub Cod
 
 ## Implementation
 
-See `./format.md`.
+See [format.md](./format.md).

@@ -14,7 +14,7 @@ The table below summarizes the support status of each feature **for project scop
 | Copilot      | `AGENTS.md`, `CLAUDE.md`, etc. ([[3]](#references)) | Multiple directories in given order and precedence ([[4]](#references)) | Same as `Skill`                           | Same as `Skill`                                      |
 | Cursor       | `AGENTS.md`, `.cursor/rules` ([[5]](#references))   | `.cursor/skills` ([[6]](#references))                                   | `Skill` is preferred ([[7]](#references)) | Markdown under `.cursor/agents` ([[8]](#references)) |
 
-Since the distribution of `Agent` and `Command` is not well standardized, this project prioritizes `Skill` and a subset of `Command`s.
+Since the distribution of `Agent` and `Command` is not well standardized, this project prioritizes `Skill` and a subset of `Command`.
 
 ### Distributing `Command` via plugin manifests
 
@@ -25,11 +25,11 @@ Since the distribution of `Agent` and `Command` is not well standardized, this p
 | Claude       | `commands` ([[9]](#references))     | flat `*.md`                        |
 | Cursor       | `commands` ([[10]](#references))    | `.md`, `.mdc`, `.markdown`, `.txt` |
 | Copilot      | `commands` ([[11]](#references))    | files under `commands/`            |
-| Codex        | not supported ([[12]](#references)) | —                                  |
+| Codex        | not supported ([[12]](#references)) | --                                 |
 
 Therefore a single `commands/` directory at the repository root can be shared by Claude, Cursor and Copilot. Claude discovers it automatically, while Cursor and Copilot need an explicit `"commands": "./commands/"` entry in their manifest.
 
-Codex has no `Command` (or prompt) component in its plugin manifest, so plugins cannot populate `~/.codex/prompts`. A workflow that must be available on Codex has to be written as a `Skill`.
+Codex has no `Command` (or prompt) component in its plugin manifest, so plugins cannot populate `~/.codex/prompts`. Codex-compliant workflow must be a `Skill`.
 
 Note that both Claude and Copilot recommend the `skills/` layout for new plugins (Claude states it explicitly ([[9]](#references)), and Copilot lets `Skill` override `Command` in its loading order ([[4]](#references))), and that Codex deprecates `Command` in favor of `Skill`([[2]](#references)). This is consistent with this project prioritizing `Skill`.
 

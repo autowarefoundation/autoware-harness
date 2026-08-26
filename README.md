@@ -21,7 +21,9 @@ Consolidating all of this into a **single source of truth** that everyone refers
 
 Over time, this also helps developers converge on a shared consensus, and lets external users lean on agents to quickly access developer-level context.
 
-## Installation
+## Installation / Update
+
+Once installed, call `/awh-meta-self-update` in each tool's session.
 
 ### Claude Code / GitHub Copilot CLI
 
@@ -57,4 +59,4 @@ If any issues are found (the agent not working appropriately, skills/commands no
 
 ## Development Guide
 
-See `docs/development.md`.
+See [docs/development.md](docs/development.md).
