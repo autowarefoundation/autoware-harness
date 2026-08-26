@@ -1,6 +1,6 @@
 # Terminology
 
-Preferred word choices and words to avoid. Applies to rule `W1`.
+This file lists preferred word choices and words to avoid. It applies to rule `W1`.
 
 Autoware domain terms are out of scope here — they belong to the glossary skill.
 
