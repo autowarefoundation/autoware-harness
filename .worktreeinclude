@@ -1,1 +1,2 @@
 # list files that are git-ignored but needs to be copied to git worktree (like .env)
+.claude/settings.local.json
