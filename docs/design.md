@@ -23,7 +23,7 @@ This project prioritizes `Skill` (and boilerplate `Command`) over the others in 
 
 ## Naming Rules / Skill Domains
 
-All skills start with `awh-`, following `<domain>` part and leading name parts (excluding `.agents/skills/`). Current rule and roadmap for domain part is:
+All skills start with `awh-` (abbreviation of `Auto Ware Harness`), following `<domain>` part and leading name parts (excluding `.agents/skills/`). Current rule and roadmap for domain part is:
 
 - `meta`
   - The skills relate to `autoware-harness` maintenance

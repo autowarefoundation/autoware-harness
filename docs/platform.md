@@ -39,12 +39,12 @@ The situation mirrors `Command`: Claude, Cursor and Copilot all take an `agents`
 
 Codex has no `agents` field in its plugin manifest. Its subagents are configured in `.codex/config.toml`.
 
-| Coding Agent | Manifest field for `Agent`          | Discovered files             |
+| Coding Agent | Manifest field for `Agent`          | Target files                 |
 | ------------ | ----------------------------------- | ---------------------------- |
 | Claude       | `agents` ([[9]](#references))       | flat `*.md` under `agents/`  |
 | Cursor       | `agents` ([[13]](#references))      | `.md`, `.mdc`, `.markdown`   |
 | Copilot      | `agents` ([[11]](#references))      | `*.agent.md` under `agents/` |
-| Codex        | not supported ([[12]](#references)) | —                            |
+| Codex        | not supported ([[12]](#references)) | N/A                          |
 
 ## Support status of YAML front matter
 
@@ -77,7 +77,7 @@ Therefore this project mandates the following fields:
 
 - `name`: Required
 - `description`: Required
-- `allowed-tools`: Optional, but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there
+- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there
 
 ## References
 
