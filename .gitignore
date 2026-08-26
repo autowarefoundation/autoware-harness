@@ -1,3 +1,4 @@
 node_modules/
 .devcontainer/devcontainer-lock.json
 .agents/worktrees/
+.claude/settings.local.json
