@@ -9,11 +9,11 @@ allowed-tools: ""
 
 # Updating the Autoware Harness plugin
 
-Every platform manages plugins through an in-session command, so present the command for the agent hosting this session and let the user run it (`/plugin` is an interactive command that the agent cannot run on its own).
+Every platform manages plugins through an in-session command. Present the command for the agent hosting this session and let the user run it, because `/plugin` is interactive and the agent cannot run it.
 
 ## Claude
 
-Claude refreshes the marketplace and checks for new plugin versions at the start of each session, so this is only needed to apply an update immediately.
+Claude refreshes the marketplace and checks for new plugin versions at the start of each session, so run these commands only when the user wants the update applied immediately.
 
 ```text
 /plugin marketplace update autoware-harness
@@ -45,4 +45,4 @@ Cursor documents no command for updating an installed plugin. Report that the up
 
 ## After the update
 
-State whether a restart is required
+State whether a restart is required.

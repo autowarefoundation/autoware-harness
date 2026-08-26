@@ -11,21 +11,19 @@ context: fork
 
 Refer to the [latest document](https://autowarefoundation.github.io/autoware-documentation/main/contributing/coding-guidelines/ros-nodes/message-guidelines/) as the single source of truth.
 
-The rest of this document describes how to validate each item.
-
 ## Filename
 
 Each filename must be in PascalCase.
 
 If a message exists solely to wrap an array of another message type, append `Array` to the filename.
 
-```bash
+```text
 DetectedObjectArray.msg  # plural wrapper: contains DetectedObject[] objects
 ```
 
 ## File header comment
 
-If a file header is provided, it should briefly state what the message represents and link to external documentation or resources that provide additional context.
+If a file has a header comment, it must state what the message represents in one line and link to any external documentation.
 
 ## Field comment
 
@@ -62,7 +60,7 @@ When a field intentionally uses a non-default unit, append exactly the suffix fr
 
 The unit identifier must appear at the end of the field name.
 
-```bash
+```text
 float32 kmph_velocity_vehicle # BAD — unit is a prefix
 float32 velocity_vehicle_kmph # GOOD — unit is a suffix
 ```
@@ -70,9 +68,9 @@ float32 velocity_vehicle_kmph # GOOD — unit is a suffix
 ## Array field
 
 - Use unbounded dynamic arrays (`type[]`), not bounded arrays (`type[N]`).
-- Exception: only use `[N]` when the size is a hard physical constraint (e.g. a 4×4 matrix represented as `float64[16]`).
+- Exception: only use `[N]` when the size is a hard physical constraint (for example, a 4×4 matrix represented as `float64[16]`).
 
-```bash
+```text
 DetectedObject[]  objects # GOOD
 DetectedObject[5] objects # BAD — avoid unless physically fixed size
 ```
@@ -83,7 +81,7 @@ DetectedObject[5] objects # BAD — avoid unless physically fixed size
 - A constant group must be **mutually exclusive and collectively exhaustive** for the dimension it represents.
 - Each constant must have a preceding `#` comment explaining its meaning.
 
-```txt
+```text
 # Object classification constants
 # Object class is unknown or could not be determined
 uint8 OBJECT_UNKNOWN = 0
