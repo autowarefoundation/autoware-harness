@@ -1,5 +1,13 @@
 # Design
 
+## Repository Structure
+
+- `docs/` contains the project documentation.
+- `skills/` contains the resources to be installed.
+- `AGENTS.md` and `.agents/skills/` are the agent prompts used for developing this project. These files and directories are symlinked from the Claude configuration.
+- `.agents/plugins/marketplace.json`, `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.github/plugin` contain the plugin manifest files for each coding agent.
+- `.devcontainers/` contains the `devcontainer` settings.
+
 ## Overview
 
 Although there are many coding agents besides the ones supported by this project, most of them share three working units in common: `Agent` (a sub agent, e.g. `~/.copilot/agents`), `Skill` (e.g. `~/.claude/skills`) and `Command` (e.g. `~/.codex/prompts/`). This project categorizes them as follows:
@@ -13,10 +21,18 @@ Although there are many coding agents besides the ones supported by this project
 
 This project prioritizes `Skill` (and boilerplate `Command`) over the others in order to provide **common basic building blocks** for Autoware developers, at least until their configurations stabilize — see [platform.md](./platform.md) for more details.
 
-## Repository Structure
+## Naming Rules / Skill Domains
 
-- `docs/` contains the project documentation.
-- `skills/` contains the resources to be installed.
-- `AGENTS.md` and `.agents/skills/` are the agent prompts used for developing this project. These files and directories are symlinked from the Claude configuration.
-- `.agents/plugins/marketplace.json`, `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.github/plugin` contain the plugin manifest files for each coding agent.
-- `.devcontainers/` contains the `devcontainer` settings.
+All skills start with `awh-`, following `<domain>` part and leading name parts (excluding `.agents/skills/`). Current rule and roadmap for domain part is:
+
+- `meta`
+  - The skills relate to `autoware-harness` maintenance
+- `glossary`
+  - The skills provides each domain's glossary, known expertise in the domain, unique keywords with special meaning, etc.
+- `interface`
+  - The skills relate to Autoware's internal / external interface with other systems.
+- `coding`
+  - The skills relate to software design and coding styles per framework, programming language, etc. across Autoware project
+- `component`
+  - The skills describe component-wise (like Planning, Perception) background, mechanism / methodology, architectures
+- TBD

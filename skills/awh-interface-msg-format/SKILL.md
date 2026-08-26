@@ -1,9 +1,9 @@
 ---
 description: |
-  Use this skill when creating, reviewing, or linting .msg, .srv, or .action files to align with Autoware's style guidelines.
-  When prompted to lint given message files, report the result in the specified format.
+  Use this skill when creating, reviewing, or validating .msg, .srv, or .action files for ROS 2 nodes to align with Autoware's style guidelines.
+  Include the path to message files in the argument.
 name: awh-interface-msg-format
-allowed-tools: Read, Grep, Glob, WebFetch
+allowed-tools: Glob Grep Read WebFetch
 context: fork
 ---
 

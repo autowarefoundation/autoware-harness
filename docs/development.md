@@ -8,17 +8,10 @@ This repository supports the following coding agents:
 - Codex
 - GitHub Copilot
 - Cursor
-- OpenCode
 
 ## Release
 
-## Naming rules
-
-Each feature name should be composed as follows:
-
-1. Start with `awh-` (an abbreviation of `autoware harness`).
-2. Add the `<domain>` (for example, `interface`, `perception`).
-3. Append any sub-domain parts, separated by `-`.
+See [roadmaps.md](./roadmaps.md).
 
 ## Agent vs Skill vs Command
 

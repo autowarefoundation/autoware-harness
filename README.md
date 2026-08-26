@@ -6,12 +6,12 @@ Autoware is an open-source autonomous driving platform that spans a wide range o
 
 1. collecting, unifying, and sharing common knowledge and context from each domain — glossary, methodology, development rules and conventions, etc. — so that every developer and agent can grasp the whole picture at an expert level
 2. collecting and maintaining useful tips and know-how for effective development, integration, and debugging
-3. encapsulating and exposing all of the above as a set of `/skill`s and `/command`s, so that:
+3. encapsulating and exposing all of the above as a set of `Skill`s and `Agent`s, so that:
    - users can integrate and customize Autoware for their own purposes
    - developers can build their custom skills and agents on top of them
    - agents can autonomously fix issues by following the appropriate procedures
 
-Consolidating all of this into a **single source of truth** that everyone refers to in common lets us address challenges such as:
+Consolidating all of this into a **single source of truth** that everyone refers to in common enables us to address following problems:
 
 - Domain knowledge and know-how tend to stay locked inside individual developers' heads instead of being shared across the project and with external contributors.
 - Fixing a downstream issue at its root is difficult, since doing so requires tracing it back through multiple unfamiliar, Autoware-specific domains.
