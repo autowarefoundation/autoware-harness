@@ -2,9 +2,9 @@
 description: |
   Use this skill when writing, reviewing, or proofreading English prose in the Markdown documentation of this repository, such as the readme, `docs/`, and `SKILL.md` files.
   It applies concise technical-writing conventions (voice, sentence structure, word choice, terminology, list and heading style) and reports rule-tagged findings with suggested rewrites before editing.
-  Include the path to the Markdown files in the argument; when no path is given, review the Markdown files changed in the current diff.
+  Include the path to the Markdown files in the argument; when no path is given, it reviews the Markdown files changed in the working tree.
 name: technical-english
-allowed-tools: Glob Grep Read Edit WebFetch
+allowed-tools: Bash(bash:*) Bash(git:*) Glob Grep Read Edit WebFetch
 context: fork
 ---
 
@@ -21,23 +21,43 @@ The `pre-commit` hooks already run `textlint`, `markdownlint`, and `prettier`, s
 
 ## Table of contents
 
-- [Workflow](#workflow) — how to review and when to edit
+- [Workflow](#workflow) — how to collect the targets, review, and edit
 - [Rule set](#rule-set) — the checks to apply, each with a rule ID
 - [references/rewrites.md](./references/rewrites.md) — before/after examples per rule ID
 - [references/terminology.md](./references/terminology.md) — preferred word choices and words to avoid
+- [scripts/collect-targets.sh](./scripts/collect-targets.sh) — resolves which files and line ranges to review
 
 ## Workflow
 
-1. Resolve the targets.
-   - Argument given: treat it as a path or glob and collect `*.md` under it.
-   - No argument: review the Markdown files changed in the working tree.
+1. Collect the targets with the helper script, so that the same input always yields the same review scope.
 
    ```bash
-   git diff --name-only --diff-filter=d HEAD -- '*.md'
+   bash scripts/collect-targets.sh [path ...]
    ```
 
-2. Read each target in full. Judge prose only — never restructure the document or change its technical claims.
-3. Report findings as a table, one row per finding, most impactful first.
+   Each output line is one target in one of two forms.
+
+   | Line                       | Meaning                               |
+   | -------------------------- | ------------------------------------- |
+   | `FULL <path>`              | Proofread the whole file.             |
+   | `RANGE <path> <from>-<to>` | Proofread these 1-indexed lines only. |
+
+   The script resolves the scope as follows.
+
+   - Arguments given: every Markdown file under those paths is a `FULL` target.
+   - No argument:
+     - A file with unstaged changes, and an untracked file, is a `FULL` target, because its content is still in flux.
+     - A file whose changes are all staged is a `RANGE` target covering each changed hunk and the surrounding lines.
+
+   Set `CONTEXT` to change how many lines surround a staged hunk. It defaults to `5`.
+
+   ```bash
+   CONTEXT=10 bash scripts/collect-targets.sh
+   ```
+
+2. Read each target. For a `RANGE` target, read the whole file for context but report findings only inside the listed ranges, so that untouched prose stays untouched.
+3. Judge prose only — never restructure the document or change its technical claims.
+4. Report findings as a table, one row per finding, most impactful first.
 
    ```text
    | File:line | Rule | Current | Suggested |
@@ -46,9 +66,8 @@ The `pre-commit` hooks already run `textlint`, `markdownlint`, and `prettier`, s
 
    - Cite the rule ID from [Rule set](#rule-set) so the author can see the reasoning.
    - Leave a finding out when the rewrite does not clearly improve clarity. Prefer few, high-confidence findings over an exhaustive list.
-   - Do not report findings inside fenced code blocks, inline code spans, URLs, or link targets.
 
-4. Ask the user which findings to apply. Apply them with `Edit` only after approval, and change nothing else.
+5. Ask the user which findings to apply. Apply them with `Edit` only after approval, and change nothing else.
 
 ## Rule set
 
