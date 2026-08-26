@@ -34,48 +34,51 @@ to explicitly declare as a human triggered command (NOTE: this is a Claude exten
 
 `allowed-tools` must be space-separated lists, and only knowledge-injection skill can have empty `allowed-tools: ""`. Try to specify tolerable actions to ensure security and avoid accidents.
 
-#### Approval guardrail
+### context (for `SubAgent`)
 
-A `Skill` and an `Agent` differ in how they clear an action that needs approval, so they need different tool grants.
-
-- A `Skill` runs under an **approval guardrail**. An action that requires user approval, such as editing a file in the repository, must reach the user before it happens.
-- An `Agent` **self-approves** inside the task it was given and keeps editing until that task is done. It returns the result to the caller instead of asking mid-task.
-
-A forked skill (`context: fork`) runs in a new context and never receives user messages. Its caller is the only party it can talk to, so it cannot obtain user approval, and an instruction such as "ask the user before applying the changes" is a step it **cannot perform**. A forked skill that also holds a file-mutating tool therefore edits without approval, and it may report back that approval was given.
-
-Declare `allowed-tools` so that the guardrail cannot be skipped.
-
-| `context` | File-mutating tools in `allowed-tools`     | Verdict                                                                        |
-| --------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
-| `fork`    | None                                       | Allowed. Return the findings and let the caller apply them.                    |
-| `fork`    | `Edit`, `Write`, `NotebookEdit`, or `Bash` | Forbidden. The skill can edit before the user ever sees the proposal.          |
-| Omitted   | Any                                        | Allowed. The skill runs in the caller's context, so approval reaches the user. |
-
-`Bash` is file-mutating unless it is narrowed to specific commands, because an unrestricted shell can write any file. Prefer `Bash(git:*)` over bare `Bash` when a forked skill only needs to read repository state.
-
-Split a skill that both investigates and edits: fork the investigation, return the proposal, and leave the edit to the caller that can ask the user.
-
-### context
-
-Given the number of potential Claude users, to reduce the usage of context window,
+If the Skill is expected to work as a `SubAgent` (see [sub-agent](./sub-agent.md)), add
 
 ```yaml
 context: fork
 ```
 
-field (NOTE: this is a Claude extension) is recommended for **independent-task-oriented skill that does not rely on current context**.
+field (NOTE: this is a Claude extension).
 
-Because a forked skill cannot ask the user anything, `context: fork` constrains what the skill may be allowed to do. See [Approval guardrail](#approval-guardrail).
+#### guardrail
 
-### Validation
+`SubAgent` runs in a new context and never receives user messages, so it cannot obtain user approval. An instruction such as "ask the user before applying the changes" is a step it **cannot perform**. A `SubAgent` that is able to write therefore edits without approval, and it may report back that approval was given.
 
-`scripts/validate-skill-front-matter.py` checks every `SKILL.md` against the rules above and runs as a `pre-commit` hook.
+`allowed-tools` alone does not prevent this. In Claude Code the field pre-approves tools rather than restricting them:
 
-```bash
-pre-commit run validate-skill-front-matter --all-files
+> It does not restrict which tools are available: every tool remains callable, and your permission settings still govern tools that are not listed. ([[1]](#references))
+
+Two fields do restrict, and a `SubAgent` needs both.
+
+| Field              | Effect                                                                                                                                                                                                                                                                                                | Reference          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `agent`            | With `context: fork`, the agent type "determines the execution environment (model, tools, and permissions)". It **defaults to `general-purpose`, which holds every tool**, so omitting it grants full write access. Use `agent: Explore`, whose tool set excludes `Edit`, `Write` and `NotebookEdit`. | [[2]](#references) |
+| `disallowed-tools` | "Tools removed from Claude's available pool while this skill is active." Required in addition to `agent`, because `Explore` still holds `Bash`, and an unrestricted shell can write any file.                                                                                                         | [[3]](#references) |
+
+A `SubAgent` therefore declares its front matter as follows.
+
+```yaml
+context: fork
+agent: Explore
+allowed-tools: Glob Grep Read WebFetch
+disallowed-tools: Edit Write NotebookEdit Bash
 ```
 
-It reports a violation with the file, the offending field, and the rule that was broken.
+`allowed-tools` is still required by this project, but treat it as the declaration of intent rather than the enforcement.
+
+When the `SubAgent` needs to read repository state, drop `Bash` from `disallowed-tools` and narrow the grant to `Bash(git:*)` instead. That grant only removes the approval prompt for those commands, so the shell remains a write path. Keep `Bash` in `disallowed-tools` whenever the task does not need it.
+
+Both `agent` and `disallowed-tools` are Claude extensions, so this enforcement does not carry to other platforms. See [sub-agent.md](./sub-agent.md) for what survives there.
+
+## References
+
+- [1](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)
+- [2](https://code.claude.com/docs/en/skills#run-skills-in-a-subagent)
+- [3](https://code.claude.com/docs/en/skills#frontmatter-reference)
 
 ## Body
 
