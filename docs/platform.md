@@ -10,11 +10,11 @@ The table below summarizes the support status of each feature **for project scop
 | Coding Agent | Context File                                        | Skill                                                                   | Command                                   | Agent                                                |
 | ------------ | --------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------- |
 | Claude       | `CLAUDE.md`                                         | `.claude/skills`                                                        | `Skill` is preferred ([[1]](#references)) | Markdown under `.claude/agents`                      |
-| Codex        | `AGENTS.md`                                         | `.codex/skills`                                                         | `Skill` is preferred ([[2]](#references)) | defined in `.codex/config.toml`                      |
+| Codex        | `AGENTS.md`                                         | `.codex/skills`                                                         | `Skill` is preferred ([[2]](#references)) | TOML under `.codex/agents` ([[18]](#references))     |
 | Copilot      | `AGENTS.md`, `CLAUDE.md`, etc. ([[3]](#references)) | Multiple directories in given order and precedence ([[4]](#references)) | Same as `Skill`                           | Same as `Skill`                                      |
 | Cursor       | `AGENTS.md`, `.cursor/rules` ([[5]](#references))   | `.cursor/skills` ([[6]](#references))                                   | `Skill` is preferred ([[7]](#references)) | Markdown under `.cursor/agents` ([[8]](#references)) |
 
-Since the distribution of `Agent` and `Command` is not well standardized, this project prioritizes `Skill` and a subset of `Command`.
+Since the distribution of `Agent` and `Command` is not well standardized, this project prioritizes `Skill` (including `SubAgent` and command-like `Skill`).
 
 ### Distributing `Command` via plugin manifests
 
@@ -37,7 +37,7 @@ Note that both Claude and Copilot recommend the `skills/` layout for new plugins
 
 The situation mirrors `Command`: Claude, Cursor and Copilot all take an `agents` field pointing at a directory of Markdown files, but the file naming differs (Copilot expects the `.agent.md` suffix), so a single directory cannot be shared as-is.
 
-Codex has no `agents` field in its plugin manifest. Its subagents are configured in `.codex/config.toml`.
+Codex has no `agents` field in its plugin manifest. `.codex/agents/*.toml` folder provides project / global scope subagents ([[18]](#references)), but they cannot be distributed. Bundling them in a plugin is requested upstream and is still open ([[19]](#references)), and because those files are TOML rather than Markdown, a single `agents/` directory could not be shared with the other three platforms even if the field existed.
 
 | Coding Agent | Manifest field for `Agent`          | Target files                 |
 | ------------ | ----------------------------------- | ---------------------------- |
@@ -77,7 +77,7 @@ Therefore this project mandates the following fields:
 
 - `name`: Required
 - `description`: Required
-- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there
+- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there. See [permission.md](./permission.md) for what the field does and does not do on each platform.
 
 ## References
 
@@ -98,3 +98,5 @@ Therefore this project mandates the following fields:
 - [15](https://code.claude.com/docs/en/skills#frontmatter-reference)
 - [16](https://learn.chatgpt.com/docs/build-skills#create-a-skill)
 - [17](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills#example-skillmd-file)
+- [18](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+- [19](https://github.com/openai/codex/issues/18988)

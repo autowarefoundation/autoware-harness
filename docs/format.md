@@ -34,30 +34,32 @@ to explicitly declare as a human triggered command (NOTE: this is a Claude exten
 
 `allowed-tools` must be space-separated lists, and only knowledge-injection skill can have empty `allowed-tools: ""`. Try to specify tolerable actions to ensure security and avoid accidents.
 
-### context (for `SubAgent`)
+Note that `allowed-tools` **pre-approves** tools rather than restricting them, so it declares intent and does not enforce it. See [permission.md](./permission.md) for what each platform actually enforces.
 
-If the Skill is expected to work as a `SubAgent` (see [sub-agent](./sub-agent.md)), add
+### for `SubAgent`
 
-```yaml
-context: fork
-```
+If the skill is expected to work as a `SubAgent`, add
 
-field (NOTE: this is a Claude extension).
+- `context: fork`
+- `agent`: `Plan` or `Explore`
+- `disallowed-tools`: `Edit`, `Write`, `NotebookEdit` and bare `Bash` are prohibited
+  - TODO: if the `agent` is `Explore / Plan`, then do we need this to explicitly prohibit Write action ?
+- `allowed-tools`: `Edit`, `Write`, `NotebookEdit` and bare `Bash` are prohibited
+
+field. The first 2 fields are only effective to Claude, and on other platforms the skill degrades to `Skill` in the same context.
 
 #### guardrail
 
 `SubAgent` runs in a new context and never receives user messages, so it cannot obtain user approval. An instruction such as "ask the user before applying the changes" is a step it **cannot perform**. A `SubAgent` that is able to write therefore edits without approval, and it may report back that approval was given.
 
-`allowed-tools` alone does not prevent this. In Claude Code the field pre-approves tools rather than restricting them:
+`allowed-tools` alone does not prevent this, because it pre-approves tools rather than restricting them. See [permission.md](./permission.md) for the full model on every platform.
 
-> It does not restrict which tools are available: every tool remains callable, and your permission settings still govern tools that are not listed. ([[1]](#references))
+Two Claude fields do restrict, and a `SubAgent` needs both.
 
-Two fields do restrict, and a `SubAgent` needs both.
-
-| Field              | Effect                                                                                                                                                                                                                                                                                                | Reference          |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `agent`            | With `context: fork`, the agent type "determines the execution environment (model, tools, and permissions)". It **defaults to `general-purpose`, which holds every tool**, so omitting it grants full write access. Use `agent: Explore`, whose tool set excludes `Edit`, `Write` and `NotebookEdit`. | [[2]](#references) |
-| `disallowed-tools` | "Tools removed from Claude's available pool while this skill is active." Required in addition to `agent`, because `Explore` still holds `Bash`, and an unrestricted shell can write any file.                                                                                                         | [[3]](#references) |
+| Field              | Effect                                                                                                                                                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agent`            | With `context: fork`, the agent type determines the tools and permissions. It **defaults to `general-purpose`, which holds every tool**, so omitting it grants full write access. Use `agent: Explore`, whose tool set excludes `Edit`, `Write` and `NotebookEdit`. |
+| `disallowed-tools` | Removes tools from the pool while the skill is active. Required in addition to `agent`, because `Explore` still holds `Bash`, and an unrestricted shell can write any file.                                                                                         |
 
 A `SubAgent` therefore declares its front matter as follows.
 
@@ -68,17 +70,9 @@ allowed-tools: Glob Grep Read WebFetch
 disallowed-tools: Edit Write NotebookEdit Bash
 ```
 
-`allowed-tools` is still required by this project, but treat it as the declaration of intent rather than the enforcement.
-
 When the `SubAgent` needs to read repository state, drop `Bash` from `disallowed-tools` and narrow the grant to `Bash(git:*)` instead. That grant only removes the approval prompt for those commands, so the shell remains a write path. Keep `Bash` in `disallowed-tools` whenever the task does not need it.
 
 Both `agent` and `disallowed-tools` are Claude extensions, so this enforcement does not carry to other platforms. See [sub-agent.md](./sub-agent.md) for what survives there.
-
-## References
-
-- [1](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)
-- [2](https://code.claude.com/docs/en/skills#run-skills-in-a-subagent)
-- [3](https://code.claude.com/docs/en/skills#frontmatter-reference)
 
 ## Body
 
