@@ -77,7 +77,7 @@ Therefore this project mandates the following fields:
 
 - `name`: Required
 - `description`: Required
-- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there. See [permission.md](./permission.md) for what the field does and does not do on each platform.
+- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there.
 
 ## References
 
