@@ -37,7 +37,7 @@ Note that both Claude and Copilot recommend the `skills/` layout for new plugins
 
 The situation mirrors `Command`: Claude, Cursor and Copilot all take an `agents` field pointing at a directory of Markdown files, but the file naming differs (Copilot expects the `.agent.md` suffix), so a single directory cannot be shared as-is.
 
-Codex has no `agents` field in its plugin manifest. `.codex/agents/*.toml` folder provides project / global scope subagents ([[18]](#references)), but they cannot be distributed. Bundling them in a plugin is requested upstream and is still open ([[19]](#references)), and because those files are TOML rather than Markdown, a single `agents/` directory could not be shared with the other three platforms even if the field existed.
+Codex has no `agents` field in its plugin manifest. `.codex/agents/*.toml` folder provides project / global scope subagents ([[18]](#references)), but they cannot be distributed and they are TOML rather than Markdown, so single `agents/` directory could not be shared with the other three platforms even if the field existed.
 
 | Coding Agent | Manifest field for `Agent`          | Target files                 |
 | ------------ | ----------------------------------- | ---------------------------- |
@@ -77,7 +77,7 @@ Therefore this project mandates the following fields:
 
 - `name`: Required
 - `description`: Required
-- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there.
+- `allowed-tools`: Required (if it's empty set it to `""`), but note that Cursor does not document it as a `SKILL.md` front matter field ([[6]](#references)), so it is not honored there
 
 ## References
 
@@ -99,4 +99,3 @@ Therefore this project mandates the following fields:
 - [16](https://learn.chatgpt.com/docs/build-skills#create-a-skill)
 - [17](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills#example-skillmd-file)
 - [18](https://learn.chatgpt.com/docs/agent-configuration/subagents)
-- [19](https://github.com/openai/codex/issues/18988)
