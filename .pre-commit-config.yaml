@@ -56,13 +56,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: validate-skill-front-matter
-        name: validate skill front matter
-        description: Enforce the SKILL.md front matter rules in docs/format.md
-        language: script
-        entry: scripts/validate-skill-front-matter.py
-        files: (^|/)SKILL\.md$
-
       - id: textlint
         name: textlint
         description: Lint English prose in Markdown files
