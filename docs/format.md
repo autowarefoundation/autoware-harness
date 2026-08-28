@@ -34,15 +34,14 @@ to explicitly declare as a human triggered command (NOTE: this is a Claude exten
 
 `allowed-tools` must be space-separated lists, and only knowledge-injection skill can have empty `allowed-tools: ""`. Try to specify tolerable actions to ensure security and avoid accidents.
 
-### context
+TODO: permission.md
 
-Given the number of potential Claude users, to reduce the usage of context window,
+### for `SubAgent`
 
-```yaml
-context: fork
-```
+If the skill is expected to work as a `SubAgent`, add
 
-field (NOTE: this is a Claude extension) is recommended for **independent-task-oriented skill that does not rely on current context**.
+- `context: fork`
+- TODO: permission (the `agent` field is deferred together with it, see [sub-agent.md](./sub-agent.md))
 
 ## Body
 
@@ -55,6 +54,14 @@ Long reference files or `SKILL.md` should have table of contents to achieve **pr
 - `references/`: contains extra Markdown files
 - `templates/`: contains template files
 - `scripts/`: contains simple auxiliary script to be executed by the skill
+
+### for `SubAgent`
+
+For skills that work as `SubAgent`:
+
+- include "Report" section at the end of the body
+- define the format of findings (bullet points, table, etc.)
+- do not include apply / edit steps
 
 ### Styles (WIP)
 

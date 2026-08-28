@@ -1,5 +1,7 @@
 # Agent Prompt
 
+This document describes development rules for **this project**. Distributed skills under `./skills/` are bound to the design rules under [project document](./docs/).
+
 ## Hooks
 
 - Use `pre-commit` command as the hooks
