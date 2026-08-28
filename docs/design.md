@@ -4,7 +4,7 @@
 
 - `docs/` contains the project documentation.
 - `skills/` contains the resources to be installed.
-- `AGENTS.md` and `.agents/skills/` are the agent prompts used for developing this project. These files and directories are symlinked from the Claude configuration.
+- `AGENTS.md` and `.agents/skills/` are the agent prompts used for developing this project. These files and directories are symlinked to the Claude configuration.
 - `.agents/plugins/marketplace.json`, `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.github/plugin` contain the plugin manifest files for each coding agent.
 - `.devcontainers/` contains the `devcontainer` settings.
 

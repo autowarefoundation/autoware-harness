@@ -5,12 +5,11 @@ In this project `SubAgent` is defined as a variant of `Skill` that:
 - runs in the background
 - works in a new, independent context
 - returns the findings / result to the main context
-- **works without Edit / Write permission**
-  - `git branch / worktree` creation is the only exception.
+  - (Preferable) **works without Edit / Write permission to the main worktree**
 
 The first 3 items exactly match the characteristic of what is known as _Sub Agent_ in general. The last rule is specific to this project, but the principle is not unique — and it is in fact treated as an important property. Claude Code has 3 built-in sub agents `general-purpose`, `Plan`, `Explore` and `Plan / Explore` only work in read only mode. Codex provides `sandbox_mode` option (`read-only` and `workspace-write` mode, although it cannot be applied to skill level).
 
-This project explicitly limits _write_ permission to _Sub Agent_ for the following reasons:
+This project's policy is to minimize _write_ permission to _Sub Agent_ for the following reasons:
 
 - Generally `Edit / Write` tools require approval from the user at least once (or at the first call). After that, once approved, later calls are allowed or later approvals themselves are bypassed for convenience per session (like Claude Code). However, a distributed `Skill` and `SubAgent` is desirable to have a consistent permission policy, and `Read`-only permission is the first option. Apart from `Read`-only, `Bash(git:*)` and especially `git branch / worktree` are considered to be safe as they protect the main worktree.
 - `SubAgent` is expected to run autonomously in the background and not to get stuck while waiting for approval from the user. The leading `Agent` or the user commits changes based on the findings from `SubAgent` (findings include the `SubAgent` worktree) — otherwise the main worktree coherence would be broken.
@@ -20,7 +19,7 @@ This project explicitly limits _write_ permission to _Sub Agent_ for the followi
   A forked skill that runs in the background applies its edits outside your session’s checkpoints, so /rewind doesn’t undo them; use git to revert them.
   ```
 
-- As a conclusion, it follows that a `SubAgent` having `Edit / Write` permission leads to 2 problems:
+- As a conclusion, it follows that a `SubAgent` having `Edit / Write` permission can lead to 2 problems:
   - The `SubAgent` may get stuck waiting for approval from the user, or even fabricate `Edit / Write` approval
     - (Claude specific): `AskUserQuestion` is also not available in `SubAgent` ([[2]](#references)).
   - The main worktree is changed behind the main session's back, the change cannot be rewound, and several changes may overlap in the worst case.
@@ -32,7 +31,7 @@ Besides, `Agent` is out of the development scope of this project so far (See [pl
 In `autoware-harness`, `SubAgent` is a variant of `Skill` that is placed under `skills/` directory with the following properties:
 
 - `context: fork`
-- TODO: permission. The `agent` field is deferred together with it, because the `git worktree` exception depends on whether `Plan` / `Explore` retain `Bash`.
+- TODO: permission, especially for Edit / Write. The `agent` field is deferred together with it, because the `git worktree` exception depends on whether `Plan` / `Explore` retain `Bash`.
 
 `context: fork` and `agent` are Claude extensions, so a `SubAgent` skill degrades on other platforms and runs in the caller's context instead of an isolated one. Prose-style prompt like "run this skill in an isolated context" does not solve the issue because it is already read as a skill in the main context. To achieve complete isolation in cross-platform manner, the `SubAgent` should be distributed through `agents` manifest, which is out of the scope of this project due to packaging policy (see [platform.md](./platform.md)).
 
