@@ -62,3 +62,7 @@ If any issues are found (the agent not working appropriately, skills/commands no
 ## Development Guide
 
 See [docs/development.md](docs/development.md).
+
+## Security
+
+This project treats a development container as the primary boundary for coding agents. See [docs/security.md](docs/security.md).
