@@ -17,7 +17,8 @@
 
   "mounts": [
     { "type": "volume", "source": "autoware-harness-cache", "target": "/home/vscode/.cache" },
-    { "type": "bind", "source": "${localEnv:HOME}/.ssh", "target": "/home/vscode/.ssh" }
+    // on macOS with Docker Desktop, use "/run/host-services/ssh-auth.sock" as the source.
+    { "type": "bind", "source": "${localEnv:SSH_AUTH_SOCK}", "target": "/ssh-agent" }
   ],
 
   "features": {
