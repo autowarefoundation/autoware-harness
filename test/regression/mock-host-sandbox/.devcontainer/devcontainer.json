@@ -1,0 +1,37 @@
+{
+  "name": "mock-host-sandbox-regression",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+
+  "remoteUser": "vscode",
+
+  "runArgs": [
+    "--name=mock-host-sandbox-regression",
+    // bubblewrap must create user/mount namespaces inside the container and
+    //   seccomp+apparmor              -> "Creating new namespace failed"
+    //   seccomp+apparmor+SYS_ADMIN    -> "Can't mount proc on /newroot/proc"
+    //   seccomp+apparmor+systempaths  -> works
+    // systempaths=unconfined matters: it lifts Docker's /proc masking,
+    // which is what blocks the procfs mount. SYS_ADMIN is not needed.
+    "--security-opt=seccomp=unconfined",
+    "--security-opt=apparmor=unconfined",
+    "--security-opt=systempaths=unconfined"
+  ],
+
+  // mount under /home/vscode to mock host environment
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/workspace,type=bind",
+  "workspaceFolder": "/home/vscode/workspace",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+  },
+
+  "postCreateCommand": ".devcontainer/post_create.sh"
+}
