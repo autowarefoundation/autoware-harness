@@ -35,10 +35,7 @@
       "allowWrite": [".", "~/.cargo"]
     },
     "credentials": {
-      "files": [
-        { "path": "~/.ssh/id_ed25519", "mode": "deny" },
-        { "path": "~/.aws/credentials", "mode": "deny" }
-      ]
+      "envVars": [{ "name": "ANTHROPIC_API_KEY", "mode": "deny" }]
     }
   }
 }

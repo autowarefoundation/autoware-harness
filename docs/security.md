@@ -58,7 +58,7 @@ What the guard policy has to achieve and which part should be relaxed for develo
     - [P1] 👉 It follows that strictly limiting the `Read` scope requires allow-rules for toolchain directories and deny-rules for private and credential ones **to be enumerated**, which is not realistic.
   - Unlike `Read`, the `Bash` scope can be limited by `sandbox` in a more flexible manner. Sandbox read rules resolve by specificity rather than deny first, so denying reads of `$HOME/` while allowing `$HOME/.cache` is **possible**.
     - [P2] 👉 `sandbox` is therefore a reasonable option for running Claude on a host computer: each project keeps a `.claude/settings.json` that allows read and write access to the working directory and to specific toolchain directories only, such as write access to `$HOME/.npm` for a web project or to `$HOME/.cache/uv` for a Python project.
-  - 👉 With `sandbox` we can stop third-party scripts from scanning and mutating private and credential directories through the `Bash` tool ([P2]), but we cannot keep `Read` out of them ([P1]). A third-party script or skill therefore still has room to bring private information into your repository, and from there into a place that is exposed on the public internet. Such information has to be protected against upload and leak at the network layer and Git layer.
+  - 👉 With `sandbox` we can stop third-party scripts from scanning and mutating private and credential directories through the `Bash` tool ([P2]), but we cannot keep `Read` out of them ([P1]). A third-party script or skill therefore still has room to bring private information into your repository, and from there into a place that is exposed on the public internet. Such information has to be protected against upload and leak at the network layer and Git layer. [The fixture below](#measuring-the-limit-the-mock-host-sandbox-fixture) exercises exactly this asymmetry.
 - **Approval stays meaningful for reads outside the project.** Manual mode prompts for a `Read` outside the working directory. It does not prompt for the built-in read-only shell commands such as `cat`, `ls`, and `find`, which run without a prompt in every mode, so this requirement covers the file tools but leaves the shell to `sandbox`. Making manual mode an organization rule through server-managed-settings (in Team plan), with the toolchain directories pre-approved so they never prompt, gives the best balance. It also creates a useful nudge: an agent on the host is subject to the organization's manual mode, which makes using container the more comfortable option.
 - **The agent does not reconfigure itself.** Agents must not change their own settings.
 - **The agent does not mutate the host.** Agents should not install packages or otherwise change the host environment.
@@ -86,11 +86,40 @@ What the guard policy has to achieve and which part should be relaxed for develo
 
 The script resolves the path in the tool input and denies it unless it falls inside the project or an allowed toolchain directory.
 
+### Measuring the limit: the `mock-host-sandbox` fixture
+
+The claims above are not left as prose. [`test/regression/mock-host-sandbox`](../test/regression/mock-host-sandbox/) is a devcontainer whose `$HOME` mocks a developer's host machine, carrying `~/Downloads`, `~/Documents` and a set of credential files. It runs a `.claude/settings.json` built the way [P2] recommends — a sandbox that denies reads of `~/` and re-opens only the toolchain directories — and the `/verify-mock-host-sandbox` skill walks an agent through it and reports what each mechanism actually stopped.
+
+Its lists are **deliberately incomplete**. `permissions.deny` enumerates `~/.ssh/**`, `~/.aws/**`, `~/.gnupg/**`, `~/.docker/config.json` and `~/.claude/**`; the fixture then plants `~/.netrc`, `~/.npmrc`, `~/.kube/config` and `~/.config/gcloud/application_default_credentials.json`, which no rule names. The skill classifies every path by the mechanism that actually stopped it, and the split is the argument of this section made measurable:
+
+| Path                                                                  | Reached through `Bash`                     | Reached through `Read`                          |
+| --------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
+| `~/.ssh/id_ed25519` (enumerated)                                      | blocked by sandbox `denyRead: ~/`          | blocked by `permissions.deny`                   |
+| `~/.netrc`, `~/.kube/config`, `~/.config/gcloud/...` (not enumerated) | blocked by the same blanket `denyRead: ~/` | **no rule denies it** — only an approval prompt |
+| `~/.config/git/credentials` (inside a toolchain allow-rule)           | **readable, no prompt**                    | **readable, no prompt**                         |
+
+Three things follow, and each maps onto a claim made above.
+
+- Under `Bash` the enumeration is not what protects you. The blanket `denyRead: ["~/"]` is, and it holds for paths nobody thought of — this is [P2] working as described. The fixture deliberately carries no `sandbox.credentials.files` entries, because a `deny` entry there applies ["the same restriction that `filesystem.denyRead` applies"](https://code.claude.com/docs/en/sandboxing#protect-credentials): under a blanket `denyRead`, naming `~/.ssh` protects nothing further and only invites the reader to believe the naming is what protects it.
+- Under `Read` there is no blanket, because rules resolve deny-first and "deny `~/`, allow these toolchain directories" cannot be written. What remains is the enumeration, and the four unnamed paths pass it. This is [P1], reproduced rather than asserted.
+- The last row is enumeration failing in the opposite direction. `~/.config/git` has to be re-opened for `git` to work, and a credential store lives inside it. Narrowing that rule to `~/.config/git/config` closes this leak and the next toolchain directory opens the next one.
+
+Environment variables are a fourth case, and the sharpest, because they have no blanket behind them at all. `sandbox.credentials.envVars` is the only mechanism that scrubs a secret from a sandboxed command, and the documentation is explicit that ["there is no built-in credential deny list, so only the files and variables you list are restricted"](https://code.claude.com/docs/en/sandboxing#protect-credentials). The fixture injects two mock secrets and lists one:
+
+| Variable            | Listed in `credentials.envVars` | Visible to a sandboxed command |
+| ------------------- | ------------------------------- | ------------------------------ |
+| `ANTHROPIC_API_KEY` | yes                             | no — unset before each command |
+| `GITHUB_TOKEN`      | no                              | **yes, in full**               |
+
+A value that never touches the filesystem cannot be caught by a path rule, so unlike the file cases there is no second line of defence: the list is the whole of the protection. `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` widens the reach of the scrubbing to unsandboxed subprocesses, but it does not make the list complete.
+
+The fixture is therefore not a model policy to copy, and closing its gaps by extending the lists would destroy what it measures: a list can always name the entries already written into it. The `PreToolUse` hook sketched above is the host-side answer to the `Read` row; the container in the next section is the answer to the rest.
+
 ## Why the container comes first
 
 Ensuring above security policy while keeping development efficient is difficult for three reasons.
 
-- **Enumeration is never complete.** A blocklist of permission rules and credential paths cannot be finished, and a newly introduced tool adds paths that no existing entry covers. It is also fragile to personal folders not listed.
+- **Enumeration is never complete.** A blocklist of permission rules and credential paths cannot be finished, and a newly introduced tool adds paths that no existing entry covers. It is also fragile to personal folders not listed. The [`mock-host-sandbox` fixture](#measuring-the-limit-the-mock-host-sandbox-fixture) exists to keep this concrete: it plants four ordinary credential locations that a carefully written deny-list still fails to name.
 - **Isolation is only as strong as the enumeration behind it.** Excessive deny limits agent's capability in terms of callable command and debugging.
 - **Hooks cannot see inside a script.** The malicious command in the threat model never appears as a tool call.
 
