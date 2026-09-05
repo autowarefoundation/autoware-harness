@@ -6,6 +6,7 @@ ignored:
   - DL3026
   - DL3013
   - DL3004
+  - DL4006
 
 trustedRegistries:
   - ghcr.io

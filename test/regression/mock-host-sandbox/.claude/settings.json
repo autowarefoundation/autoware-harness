@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "blockReadsOutsideWorkingDirectories": false,
+    "allow": [
+      "Read(/usr/**)",
+      "Read(/etc/**)",
+      "Read(~/.gitconfig)",
+      "Read(~/.config/git/**)",
+      "Read(~/.config/gh/**)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(cargo:*)",
+      "Bash(rustc:*)"
+    ],
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.claude/**)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "filesystemPolicy": "strict",
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "excludedCommands": [],
+    "filesystem": {
+      "denyRead": ["~/"],
+      "allowRead": ["~/.gitconfig", "~/.config/gh", "~/.config/git", "~/.rustup"],
+      "allowWrite": [".", "~/.cargo"]
+    },
+    "credentials": {
+      "files": [
+        { "path": "~/.ssh/id_ed25519", "mode": "deny" },
+        { "path": "~/.aws/credentials", "mode": "deny" }
+      ]
+    }
+  }
+}
