@@ -17,7 +17,6 @@
     ],
     "deny": [
       "Read(~/.ssh/**)",
-      "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
       "Read(~/.docker/config.json)",
       "Read(~/.claude/**)"
