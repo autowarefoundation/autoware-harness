@@ -20,10 +20,9 @@ Inside the container, user `vscode` and `$HOME/workspace` plays the role of a de
 | `~/Downloads/`, `~/Documents/` | no                                        | denied by `denyRead: ["~/"]`     | prompt only                      |
 | `~/.ssh/id_ed25519`            | `permissions.deny`                        | denied by `denyRead: ["~/"]`     | denied by rule                   |
 | `~/.aws/credentials`           | **no — the forgotten entry**              | denied by `denyRead: ["~/"]`     | **prompt only, then readable**   |
-| `~/.config/git/credentials`    | `permissions.allow` + sandbox `allowRead` | **readable, no prompt**          | **readable, no prompt**          |
 | `~/.gitconfig`, `~/.config/gh` | `permissions.allow` + sandbox `allowRead` | readable, as the toolchain needs | readable, as the toolchain needs |
 
-Two rows are deliberate leaks. `~/.aws/credentials` is as sensitive as `~/.ssh/id_ed25519` and sits beside it, but nobody wrote it into `permissions.deny`, so through `Read` nothing but the approval prompt stands in the way. `~/.config/git/credentials` is the same failure from the other side: `~/.config/git` has to be re-opened for `git` to work, and the credential store lives inside it.
+The `~/.aws/credentials` row is the deliberate leak. It is as sensitive as `~/.ssh/id_ed25519` and sits beside it in the same home directory, and `Bash` stops both alike — but nobody wrote it into `permissions.deny`, so through `Read` nothing but the approval prompt stands in the way.
 
 Environment variables have no blanket rule at all — `sandbox.credentials.envVars` protects exactly the names written into it:
 

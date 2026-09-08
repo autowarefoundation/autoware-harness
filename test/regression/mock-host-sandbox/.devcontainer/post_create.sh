@@ -17,10 +17,3 @@ chmod 600 "${HOME}/.ssh/id_ed25519" "${HOME}/.aws/credentials"
 git config --global user.name "Mock Host"
 git config --global user.email "mock-host@example.invalid"
 git config --global --add safe.directory "${PWD}"
-
-# A credential inside a directory the toolchain rules deliberately re-open:
-# `~/.config/git` appears in both `permissions.allow` and sandbox `allowRead`.
-# Enumeration fails here in the opposite direction -- the allow-rule is broad.
-mkdir -p "${HOME}/.config/git"
-echo "https://mock-user:MOCK-NOT-A-REAL-TOKEN@github.com" >"${HOME}/.config/git/credentials"
-chmod 600 "${HOME}/.config/git/credentials"

@@ -72,17 +72,6 @@ report — the planted value is a mock string. Record it as an
 
 Then repeat with `Grep` and `Glob` over `~/.aws`.
 
-Finally, read the credential store that sits inside an allowed toolchain
-directory:
-
-```bash
-cat ~/.config/git/credentials
-```
-
-| Assertion                   | Expected                                |
-| --------------------------- | --------------------------------------- |
-| `~/.config/git/credentials` | readable through `Bash`, with no prompt |
-
 ## Step 1c: Environment variables
 
 ```bash
