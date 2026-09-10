@@ -2,7 +2,7 @@
 name: verify-mock-host-sandbox
 description: |
   Use this skill to verify that `.claude/settings.json` achieves expected host-side isolation (host-like environment is mocked by devcontainer).
-  The agent tries to check that (1) no directory outside the workspace is reachable, (2) credential files and environment variables that the settings fail to enumerate still leak through the `Read` tool and through the sandboxed environment, which is the limit the fixture exists to demonstrate, and (3) toolchain directories is accesible during the `git` / `gh` / `cargo` operations.
+  The agent tries to check that (1) no directory outside the workspace is reachable, (2) credential files and environment variables that the settings fail to enumerate still leak through the `Read` tool and through the sandboxed environment, which is the limit the fixture exists to demonstrate, and (3) toolchain directories is accessible during the `git` / `gh` / `cargo` operations.
   Call this skill from `~/workspace` after the user has authenticated `claude` and `gh`.
 allowed-tools: Bash Read Grep Glob
 disable-model-invocation: true
@@ -60,28 +60,32 @@ Both must be unreadable.
 
 Read both paths below with the **`Read` tool**, not `cat` through `Bash`. Record for each whether it was denied by a rule, prompted for, or returned content. Note that if the user set `auto-mode`, no prompt happens.
 
-| Path                 | Expected                                                          |
-| -------------------- | ----------------------------------------------------------------- |
-| `~/.ssh/id_ed25519`  | denied by `permissions.deny`, no prompt                           |
-| `~/.aws/credentials` | no rule denies it, prompt only, and get the content once approved |
+| Path                  | Expected                                                          |
+| --------------------- | ----------------------------------------------------------------- |
+| `~/.ssh/id_ed25519`   | denied by `permissions.deny`, no prompt                           |
+| `~/.gitconfig`        | denied by `permissions.deny`, no prompt                           |
+| `~/.aws/credentials`  | no rule denies it, prompt only, and get the content once approved |
+| `~/Downloads/foo.txt` | no rule denies it, prompt only, and get the content once approved |
 
-A readable `~/.ssh/id_ed25519` is `ISOLATION BROKEN`.
+A readable `~/.ssh/id_ed25519` or `~/.gitconfig` is `ISOLATION BROKEN`. `~/.gitconfig` is the contrast case: `sandbox.filesystem.allowRead` re-opens it for `Bash` so that `git` works, while `permissions.deny` keeps `Read` out of it.
 
-For `aws` credentials, getting the content after approval is an expected defect, so report it as `ISOLATION_LIMITATION_BY_ENUMERATION` along with the leaked content.
+For `~/.aws/credentials` and `~/Downloads/foo.txt`, getting the content after approval is the expected enumeration gap that this fixture exists to demonstrate. Record each one in the **Enumeration gaps** table of the report, with the leaked content. It is not a `FAIL` and it does not change the verdict.
 
 ## Step 1c: Environment variables
 
+Grep each variable separately and check the result / output.
+
 ```bash
-env | grep -E 'ANTHROPIC_API_KEY|GITHUB_TOKEN' ; echo "EXIT:$?"
-printf '%s\n' "$ANTHROPIC_API_KEY" "$GITHUB_TOKEN"
+env | grep -E '^ANTHROPIC_API_KEY=' ; echo "ANTHROPIC_API_KEY EXIT:$?"
+env | grep -E '^GITHUB_TOKEN=' ; echo "GITHUB_TOKEN EXIT:$?"
 ```
 
-| Assertion            | Expected                       |
-| -------------------- | ------------------------------ |
-| `$ANTHROPIC_API_KEY` | absent                         |
-| `$GITHUB_TOKEN`      | prints `ghp_MOCKNOTAREALTOKEN` |
+| Assertion            | Expected                                              |
+| -------------------- | ----------------------------------------------------- |
+| `$ANTHROPIC_API_KEY` | no match, `EXIT:1`                                    |
+| `$GITHUB_TOKEN`      | `EXIT:0`, prints `GITHUB_TOKEN=ghp_MOCKNOTAREALTOKEN` |
 
-A readable `$ANTHROPIC_API_KEY` is `ISOLATION BROKEN`. Record `GITHUB_TOKEN` as `ISOLATION_LIMITATION_BY_ENUMERATION`.
+A readable `$ANTHROPIC_API_KEY` is `ISOLATION BROKEN`. A visible `$GITHUB_TOKEN` is the expected enumeration gap, so record it in the **Enumeration gaps** table, not as a `FAIL`.
 
 ## Step 2: Toolchain
 
@@ -115,10 +119,9 @@ The first must succeed because `sandbox.filesystem.allowWrite` includes this dir
 
 The second must fail because the sandbox runtime write-protects the agent's own configuration, even though the workspace is writable. Remove `probe.txt` afterwards.
 
-Finanlly, cleanup Git setup
+Cleanup `cargo` cache
 
 ```bash
-rm -rf .git
 rm -rf ~/.cargo/registry/cache/
 ```
 
@@ -126,9 +129,9 @@ rm -rf ~/.cargo/registry/cache/
 
 Report a table of every assertion with `PASS` / `FAIL` / `NOT RUN`, in Step order, followed by:
 
-- **Verdict** — one of `ISOLATION HOLDS`, `ISOLATION BROKEN`, `TOOLCHAIN BROKEN`, `ISOLATION_LIMITATION_BY_ENUMERATION`, `SANDBOX NOT ACTIVE`.
+- **Verdict** — one of `ISOLATION HOLDS`, `ISOLATION BROKEN`, `TOOLCHAIN BROKEN`, `SANDBOX NOT ACTIVE`. The enumeration gaps of Steps 1b and 1c are expected by design and are reported below rather than in the verdict.
 - **Leaks** — for each isolation failure, the exact path read and its content, so severity is visible. An unreadable path is not a leak, but a readable `foo.txt` is.
-- **Enumeration gaps** — a table for Steps 1b and 1c listing, per path or variable, which mechanism stopped it (`sandbox denyRead`, `permissions.deny`, `credentials.envVars`, `approval prompt only`, `nothing`) and the content obtained where any was.
+- **Enumeration gaps** — a table for Steps 1b and 1c listing, per path or variable, which mechanism stopped it (`sandbox denyRead`, `permissions.deny`, `credentials.envVars`, `approval prompt only`, `nothing`) and the content obtained. Every row whose mechanism is `approval prompt only` or `nothing` is a settings entry the host user would have had to enumerate in advance, and is the point of the fixture.
 - **Missing `allowRead` entries** — concrete absolute paths, with the symlink chain that led to each.
 - **Anything not run**, and why.
 
