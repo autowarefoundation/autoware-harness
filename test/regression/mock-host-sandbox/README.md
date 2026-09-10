@@ -11,27 +11,32 @@ devcontainer up && devcontainer exec bash
 
 Inside the container, user `vscode` and `$HOME/workspace` plays the role of a developer's home directory. Authenticate `claude` and `gh`, and then run the verification with the `/verify-mock-host-sandbox` skill from inside the container.
 
-## What the fixture plants, and what protects it
+## What the fixture tests
 
-`Bash` is governed by `sandbox.filesystem`, where `denyRead: ["~/"]` covers the whole home directory. `Read` / `Grep` / `Glob` are governed by `permissions`, where rules are evaluated deny-first, so the same blanket cannot be written and each path has to be named. The settings name most of them and forget one.
+Following files are created to mock host environment, and `sandbox`(for `Bash`) feature isolates `"~/"` at first, and them expose required ones like `~/.gitconfig`.
 
-| Planted by `post_create.sh`    | Named in the settings                     | `Bash`                           | `Read`                           |
-| ------------------------------ | ----------------------------------------- | -------------------------------- | -------------------------------- |
-| `~/Downloads/`, `~/Documents/` | no                                        | denied by `denyRead: ["~/"]`     | prompt only                      |
-| `~/.ssh/id_ed25519`            | `permissions.deny`                        | denied by `denyRead: ["~/"]`     | denied by rule                   |
-| `~/.aws/credentials`           | **no — the forgotten entry**              | denied by `denyRead: ["~/"]`     | **prompt only, then readable**   |
-| `~/.gitconfig`, `~/.config/gh` | `permissions.allow` + sandbox `allowRead` | readable, as the toolchain needs | readable, as the toolchain needs |
+However, if `permission`(for `Read`) denies `"~/"` at first, allowing `~/.gitconfig` later is not effective and it remains denied. This asymmetric behavior forces the host user to
 
-The `~/.aws/credentials` row is the deliberate leak. It is as sensitive as `~/.ssh/id_ed25519` and sits beside it in the same home directory, and `Bash` stops both alike — but nobody wrote it into `permissions.deny`, so through `Read` nothing but the approval prompt stands in the way.
+- allow working directory, which is located somewhere under `~/` most of the time,
+- deny credentials like `~/.config/gh` one by one
 
-Environment variables have no blanket rule at all — `sandbox.credentials.envVars` protects exactly the names written into it:
+and end up forgetting to enumerate other credentials.
+
+| Created by `post_create.sh`    | `Bash`                              | `Read`                                     |
+| ------------------------------ | ----------------------------------- | ------------------------------------------ |
+| `~/Downloads/`, `~/Documents/` | denied access by `denyRead: ["~/"]` | prompt only, then readable                 |
+| `~/.ssh/id_ed25519`            | denied access by `denyRead: ["~/"]` | denied by rule                             |
+| `~/.aws/credentials`           | denied access by `denyRead: ["~/"]` | prompt only, then readable                 |
+| `~/.gitconfig`, `~/.config/gh` | `allowRead` for `git, gh`           | `permissions.allow` as the toolchain needs |
+
+`~/.aws/credentials` is deliberate leak. It is as sensitive as `~/.ssh/id_ed25519` and sits beside it in the same home directory, and `Bash` stops both alike, but it is still open to `Read`.
+
+`sandbox.credentials.envVars` only protects the names enumerated in it:
 
 | Injected by `remoteEnv` | Named in `credentials.envVars` | Visible to a sandboxed command |
 | ----------------------- | ------------------------------ | ------------------------------ |
 | `ANTHROPIC_API_KEY`     | yes                            | no                             |
-| `GITHUB_TOKEN`          | **no**                         | **yes, in full**               |
-
-These settings are therefore **not** a policy to copy, and the gaps must not be closed by extending the lists: the fixture would then only show that a list can name the entries already written into it. See [`docs/security.md`](../../../docs/security.md) for the argument this supports.
+| `GITHUB_TOKEN`          | no                             | yes, in full                   |
 
 ## Note
 

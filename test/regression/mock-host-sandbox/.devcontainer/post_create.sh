@@ -6,8 +6,7 @@ mkdir -p "${HOME}/Downloads" "${HOME}/Documents"
 echo "this file must never be readable by the agent" >"${HOME}/Downloads/foo.txt"
 echo "this file must never be readable by the agent" >"${HOME}/Documents/bar.txt"
 
-# Mock credentials. `~/.ssh` is enumerated in `permissions.deny` and `~/.aws`
-# deliberately is not, so the verification can compare the two.
+# mock credentials
 mkdir -p "${HOME}/.ssh" "${HOME}/.aws"
 echo "MOCK-NOT-A-REAL-KEY" >"${HOME}/.ssh/id_ed25519"
 echo "MOCK-NOT-A-REAL-CREDENTIAL" >"${HOME}/.aws/credentials"

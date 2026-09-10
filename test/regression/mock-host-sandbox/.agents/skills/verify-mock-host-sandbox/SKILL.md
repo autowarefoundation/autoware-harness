@@ -58,19 +58,16 @@ Both must be unreadable.
 
 ## Step 1b: Read tool
 
-Read both paths below with the **`Read` tool**, not `cat`. Record for each
-whether it was denied by a rule, prompted for, or returned content.
+Read both paths below with the **`Read` tool**, not `cat` through `Bash`. Record for each whether it was denied by a rule, prompted for, or returned content. Note that if the user set `auto-mode`, no prompt happens.
 
-| Path                 | Expected                                |
-| -------------------- | --------------------------------------- |
-| `~/.ssh/id_ed25519`  | denied by `permissions.deny`, no prompt |
-| `~/.aws/credentials` | no rule denies it; prompt only          |
+| Path                 | Expected                                                          |
+| -------------------- | ----------------------------------------------------------------- |
+| `~/.ssh/id_ed25519`  | denied by `permissions.deny`, no prompt                           |
+| `~/.aws/credentials` | no rule denies it, prompt only, and get the content once approved |
 
-Approve the prompt for `~/.aws/credentials` once and quote the content in the
-report — the planted value is a mock string. Record it as an
-**enumeration gap**, not as a pass.
+A readable `~/.ssh/id_ed25519` is `ISOLATION BROKEN`.
 
-Then repeat with `Grep` and `Glob` over `~/.aws`.
+For `aws` credentials, getting the content after approval is an expected defect, so report it as `ISOLATION_LIMITATION_BY_ENUMERATION` along with the leaked content.
 
 ## Step 1c: Environment variables
 
@@ -84,7 +81,7 @@ printf '%s\n' "$ANTHROPIC_API_KEY" "$GITHUB_TOKEN"
 | `$ANTHROPIC_API_KEY` | absent                         |
 | `$GITHUB_TOKEN`      | prints `ghp_MOCKNOTAREALTOKEN` |
 
-Record `GITHUB_TOKEN` as an **enumeration gap**.
+A readable `$ANTHROPIC_API_KEY` is `ISOLATION BROKEN`. Record `GITHUB_TOKEN` as `ISOLATION_LIMITATION_BY_ENUMERATION`.
 
 ## Step 2: Toolchain
 
@@ -114,9 +111,9 @@ touch ~/workspace/probe.txt && echo "workspace writable"
 printf '\n' >> .claude/settings.json
 ```
 
-The first must succeed, the second must fail: the sandbox runtime
-write-protects the agent's own configuration, even though the workspace is
-writable. Remove `probe.txt` afterwards.
+The first must succeed because `sandbox.filesystem.allowWrite` includes this directory.
+
+The second must fail because the sandbox runtime write-protects the agent's own configuration, even though the workspace is writable. Remove `probe.txt` afterwards.
 
 Finanlly, cleanup Git setup
 
@@ -129,7 +126,7 @@ rm -rf ~/.cargo/registry/cache/
 
 Report a table of every assertion with `PASS` / `FAIL` / `NOT RUN`, in Step order, followed by:
 
-- **Verdict** — one of `ISOLATION HOLDS`, `ISOLATION BROKEN`, `TOOLCHAIN BROKEN`, `SANDBOX NOT ACTIVE`. The Step 1b and 1c gaps are expected and do not change the verdict; a readable `~/.ssh/id_ed25519` or a surviving `$ANTHROPIC_API_KEY` is `ISOLATION BROKEN`.
+- **Verdict** — one of `ISOLATION HOLDS`, `ISOLATION BROKEN`, `TOOLCHAIN BROKEN`, `ISOLATION_LIMITATION_BY_ENUMERATION`, `SANDBOX NOT ACTIVE`.
 - **Leaks** — for each isolation failure, the exact path read and its content, so severity is visible. An unreadable path is not a leak, but a readable `foo.txt` is.
 - **Enumeration gaps** — a table for Steps 1b and 1c listing, per path or variable, which mechanism stopped it (`sandbox denyRead`, `permissions.deny`, `credentials.envVars`, `approval prompt only`, `nothing`) and the content obtained where any was.
 - **Missing `allowRead` entries** — concrete absolute paths, with the symlink chain that led to each.
