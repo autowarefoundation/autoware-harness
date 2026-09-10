@@ -6,6 +6,11 @@
 
   "remoteUser": "vscode",
 
+  "remoteEnv": {
+    "ANTHROPIC_API_KEY": "sk-ant-MOCK-NOT-A-REAL-KEY",
+    "GITHUB_TOKEN": "ghp_MOCKNOTAREALTOKEN"
+  },
+
   "runArgs": [
     "--name=mock-host-sandbox-regression",
     // bubblewrap must create user/mount namespaces inside the container and
