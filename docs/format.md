@@ -32,16 +32,20 @@ to explicitly declare as a human triggered command (NOTE: this is a Claude exten
 
 ### allowed-tools
 
-`allowed-tools` must be space-separated lists, and only knowledge-injection skill can have empty `allowed-tools: ""`. Try to specify tolerable actions to ensure security and avoid accidents.
+`allowed-tools` must be space-separated lists. See [security.md](./security.md) and take care of following behaviors:
 
-TODO: permission.md
+- Read-only tools should be enumerated because otherwise the user would be prompted whenever Claude select them on the first use.
+- `Edit` should be declared only when the skill needs to edit relevant files.
+- At least in Claude, `WebFetch` tool does not read the full content of the URL, but it summarizes the content with lightweight model.
 
 ### for `SubAgent`
 
 If the skill is expected to work as a `SubAgent`, add
 
 - `context: fork`
-- TODO: permission (the `agent` field is deferred together with it, see [sub-agent.md](./sub-agent.md))
+- `agent: Explore | Plan`
+
+See [sub-agent.md](./sub-agent.md)
 
 ## Body
 

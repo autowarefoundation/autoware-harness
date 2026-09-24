@@ -35,7 +35,7 @@ All skills start with `awh-` (abbreviation of `Auto Ware Harness`), following `<
 - `meta`
   - The skills relate to `autoware-harness` maintenance
 - `glossary`
-  - The skills provides each domain's glossary, known expertise in the domain, unique keywords with special meaning, etc.
+  - The skills provide each domain's glossary, known expertise in the domain, unique keywords with special meaning, etc.
 - `interface`
   - The skills relate to Autoware's internal / external interface with other systems.
 - `coding`
