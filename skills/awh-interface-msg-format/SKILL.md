@@ -5,6 +5,7 @@ description: |
 name: awh-interface-msg-format
 allowed-tools: Glob Grep Read WebFetch
 context: fork
+agent: Plan
 ---
 
 # Autoware Harness message schema format
