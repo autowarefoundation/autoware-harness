@@ -4,6 +4,7 @@ This document explains:
 
 1. How to block malicious skills by solid **mechanism** (not by prose or prompt)
 2. Why this project treats a development container as the primary security boundary for coding agents.
+3. What `allowed-tools` protects
 
 The sections below take Claude Code as the example for simplicity, but other agents such as Codex resemble it in many respects. The best security policy will also change as new sandbox features appear.
 
@@ -118,7 +119,6 @@ The configuration in [`.devcontainer/`](../.devcontainer/) is deliberately small
 ### What the container does not solve
 
 - **The project directory is writable.** It depends if the user wants to edit the directory for development or just to read it for research.
-  - TODO: `read-only` policy maybe too conservative ([AGENTS.md](../AGENTS.md): `.agents/worktrees`, [sub-agent.md](./sub-agent.md): `SubAgent`)
 - **Egress is not filtered by the container itself.** Isolating a filesystem does not isolate a socket, which is what the `init-firewall.sh` entry above is for.
 
 ### Coding agents
@@ -126,3 +126,18 @@ The configuration in [`.devcontainer/`](../.devcontainer/) is deliberately small
 - **Claude Code**: its Bash sandbox uses `bubblewrap`, which cannot mount a fresh `/proc` inside an unprivileged container. Set [`enableWeakerNestedSandbox`](https://code.claude.com/docs/en/sandboxing) when running the inner sandbox there, and only when the container already provides the boundary. Note also that the sandbox covers Bash and its child processes; `Read`, `Edit`, and `Write` go through the permission system instead, so a policy written only as sandbox paths leaves the file tools unconstrained.
 - **Codex**: `sandbox_mode` accepts `read-only`, `workspace-write`, and `danger-full-access`, and can be set per custom subagent. Inside a container that holds no personal data, `workspace-write` is a reasonable default; `danger-full-access` is defensible there and not on a host.
 - **Agents that ship `scripts/`**: a skill that executes a script is a distinct trust category. Permission rules, `allowed-tools`, and `PreToolUse` hooks all evaluate a single tool call, so `bash scripts/setup.sh` is one approval that covers everything the script does. Only an operating-system boundary observes the actions inside it. Review the scripts of any third-party skill before enabling it.
+
+## `allowed-tools`
+
+Unlike permission and sandbox, `allowed-tools` field does not restrict or grant agent access permission. It just interrupts the user for approval.
+
+`allowed-tools` grants permission for the listed tools during the turn that invokes the skill, and the grant clears at the next user message. It is explicitly not a restriction ([[1]](#references)):
+
+> It does not restrict which tools are available: every tool remains callable, and your permission settings still govern tools that are not listed.
+
+`disallowed-tools` is a Claude extension that removes tools from the pool while the skill is active, and the restriction clears at the next user message ([[2]](#references)). This is the frontmatter field that restricts.
+
+## References
+
+- [1](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)
+- [2](https://code.claude.com/docs/en/skills#frontmatter-reference)
