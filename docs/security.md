@@ -118,7 +118,7 @@ The configuration in [`.devcontainer/`](../.devcontainer/) is deliberately small
 ### What the container does not solve
 
 - **The project directory is writable.** It depends if the user wants to edit the directory for development or just to read it for research.
-  - TODO: `read-only` policy maybe too conservative ([CLAUDE.md](../CLAUDE.md): `.agents/worktrees`, [sub-agent.md](./sub-agent.md): `SubAgent`)
+  - TODO: `read-only` policy maybe too conservative ([AGENTS.md](../AGENTS.md): `.agents/worktrees`, [sub-agent.md](./sub-agent.md): `SubAgent`)
 - **Egress is not filtered by the container itself.** Isolating a filesystem does not isolate a socket, which is what the `init-firewall.sh` entry above is for.
 
 ### Coding agents
