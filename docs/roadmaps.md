@@ -18,12 +18,6 @@ Scope:
 
 Candidate tooling: `claude plugin eval` and `/skill-doctor` on the Claude side. Since this project targets four platforms, the eval definition should stay platform-neutral (plain prompt/expectation pairs) even if only one runner exists at first.
 
-### Versioning and release
-
-- versioning policy (semantic versioning, and what counts as a breaking change for a skill)
-- release procedure that bumps every plugin manifest consistently
-  (`.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, `.github/plugin`, `.agents/plugins/marketplace.json`)
-
 ## Skill Capability
 
 The goal of this project is for an agent to complete a real Autoware development task on its own, using only the skills distributed here.

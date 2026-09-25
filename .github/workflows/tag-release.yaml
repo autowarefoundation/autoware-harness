@@ -1,0 +1,43 @@
+name: tag-release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .claude-plugin/plugin.json
+
+permissions:
+  contents: read
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: version
+        run: |
+          current=$(jq -r .version .claude-plugin/plugin.json)
+          previous=$(git show HEAD^:.claude-plugin/plugin.json | jq -r .version)
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          if [ "$current" != "$previous" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag and publish release
+        if: steps.version.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.version.outputs.current }}
+        run: |
+          git tag "$TAG"
+          git push origin "$TAG"
+          gh release create "$TAG" --title "$TAG" --generate-notes

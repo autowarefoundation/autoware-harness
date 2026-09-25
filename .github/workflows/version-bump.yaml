@@ -1,0 +1,82 @@
+name: version-bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Part of the version to bump
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: read
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute next version
+        id: version
+        run: |
+          current=$(jq -r .version .claude-plugin/plugin.json)
+          IFS=. read -r major minor patch <<< "$current"
+          case "${{ inputs.bump }}" in
+            major)
+              major=$((major + 1)); minor=0; patch=0
+              ;;
+            minor)
+              minor=$((minor + 1)); patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "next=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+
+      - name: Bump plugin manifests
+        env:
+          NEXT_VERSION: ${{ steps.version.outputs.next }}
+        run: |
+          for manifest in \
+            .claude-plugin/plugin.json \
+            .codex-plugin/plugin.json \
+            .cursor-plugin/plugin.json \
+            .github/plugin/plugin.json; do
+            tmp=$(mktemp)
+            jq --arg v "$NEXT_VERSION" '.version = $v' "$manifest" > "$tmp"
+            mv "$tmp" "$manifest"
+          done
+
+          tmp=$(mktemp)
+          jq --arg v "$NEXT_VERSION" \
+            '.metadata.version = $v | .plugins[0].version = $v' \
+            .github/plugin/marketplace.json > "$tmp"
+          mv "$tmp" .github/plugin/marketplace.json
+
+      - name: Open release pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.RELEASE_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          commit-message: "chore(release): bump version to v${{ steps.version.outputs.next }}"
+          signoff: true
+          branch: release/v${{ steps.version.outputs.next }}
+          delete-branch: true
+          base: main
+          draft: true
+          title: "chore(release): v${{ steps.version.outputs.next }}"
+          body: |
+            Bumps the plugin manifest version from `v${{ steps.version.outputs.current }}` to `v${{ steps.version.outputs.next }}` (`${{ inputs.bump }}`).
+
+            See [docs/release.md](../../docs/release.md) for the versioning policy.
+
+            Merging this PR to `main` triggers the `tag-release` workflow, which tags `v${{ steps.version.outputs.next }}` and publishes the GitHub Release.
