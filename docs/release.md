@@ -12,6 +12,8 @@ When unsure which part to bump, treat the change as breaking for the agent workf
 
 ## Version surface
 
+The Git tag on `main`, not any manifest file, is the source of truth for the current version. A release tag is named `MAJOR.MINOR.PATCH`, with no `v` prefix, which keeps it trivial to parse (`git tag --list --sort=-v:refname | head -n1`). When no such tag exists yet, the current version is treated as `0.0.0`.
+
 A release bumps the `version` field of every plugin manifest at once, so all supported coding agents (see [development.md](./development.md)) observe the same version:
 
 - `.claude-plugin/plugin.json`
@@ -20,16 +22,16 @@ A release bumps the `version` field of every plugin manifest at once, so all sup
 - `.github/plugin/plugin.json`
 - `.github/plugin/marketplace.json` (`metadata.version` and `plugins[0].version`)
 
-`.claude-plugin/plugin.json` is the source of truth for the current version. The other manifests without a `version` field (`.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, `.agents/plugins/marketplace.json`) are out of scope, since they carry no version to bump.
+The other manifests without a `version` field (`.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, `.agents/plugins/marketplace.json`) are out of scope, since they carry no version to bump.
 
 ## Release procedure
 
 Releasing is a two-step, manually triggered process:
 
-1. **Bump.** A maintainer dispatches the [`version-bump`](../.github/workflows/version-bump.yaml) workflow from `main` and picks `major`, `minor`, or `patch`. The workflow computes the next version from the current one, updates every manifest listed above, and opens a draft pull request against `main`.
+1. **Bump.** A maintainer dispatches the [`version-bump`](../.github/workflows/version-bump.yaml) workflow from `main` and picks `major`, `minor`, or `patch`. The workflow reads the latest `MAJOR.MINOR.PATCH` tag (or `0.0.0` if none exists), computes the next version, updates every manifest listed above, and opens a draft pull request against `main`.
 2. **Review and merge.** A maintainer reviews the draft pull request like any other change (DCO — Developer Certificate of Origin, `pre-commit`, `semantic-pull-request` checks all run on it), marks it ready, and merges it into `main`.
 
-Merging the release pull request changes `.claude-plugin/plugin.json` on `main`, which triggers the [`tag-release`](../.github/workflows/tag-release.yaml) workflow. That workflow detects the version change, creates the `vMAJOR.MINOR.PATCH` tag, and publishes the corresponding GitHub Release with auto-generated notes.
+Merging the release pull request changes `.claude-plugin/plugin.json` on `main`, which triggers the [`tag-release`](../.github/workflows/tag-release.yaml) workflow. That workflow compares the manifest's `version` field against the latest existing tag, and if they differ, creates the `MAJOR.MINOR.PATCH` tag and publishes the corresponding GitHub Release with auto-generated notes.
 
 No release step runs automatically from a regular commit or merge to `main`; a release only happens when a maintainer explicitly dispatches the `version-bump` workflow.
 

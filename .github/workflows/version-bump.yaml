@@ -23,11 +23,14 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Compute next version
         id: version
         run: |
-          current=$(jq -r .version .claude-plugin/plugin.json)
+          current=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          current=${current:-0.0.0}
           IFS=. read -r major minor patch <<< "$current"
           case "${{ inputs.bump }}" in
             major)
@@ -67,16 +70,16 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.RELEASE_PR_TOKEN || secrets.GITHUB_TOKEN }}
-          commit-message: "chore(release): bump version to v${{ steps.version.outputs.next }}"
+          commit-message: "chore(release): bump version to ${{ steps.version.outputs.next }}"
           signoff: true
-          branch: release/v${{ steps.version.outputs.next }}
+          branch: release/${{ steps.version.outputs.next }}
           delete-branch: true
           base: main
           draft: true
-          title: "chore(release): v${{ steps.version.outputs.next }}"
+          title: "chore(release): ${{ steps.version.outputs.next }}"
           body: |
-            Bumps the plugin manifest version from `v${{ steps.version.outputs.current }}` to `v${{ steps.version.outputs.next }}` (`${{ inputs.bump }}`).
+            Bumps the plugin manifest version from `${{ steps.version.outputs.current }}` to `${{ steps.version.outputs.next }}` (`${{ inputs.bump }}`).
 
             See [docs/release.md](../../docs/release.md) for the versioning policy.
 
-            Merging this PR to `main` triggers the `tag-release` workflow, which tags `v${{ steps.version.outputs.next }}` and publishes the GitHub Release.
+            Merging this PR to `main` triggers the `tag-release` workflow, which tags `${{ steps.version.outputs.next }}` and publishes the GitHub Release.

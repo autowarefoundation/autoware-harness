@@ -18,15 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Detect version change
         id: version
         run: |
           current=$(jq -r .version .claude-plugin/plugin.json)
-          previous=$(git show HEAD^:.claude-plugin/plugin.json | jq -r .version)
+          latest=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          latest=${latest:-0.0.0}
           echo "current=$current" >> "$GITHUB_OUTPUT"
-          if [ "$current" != "$previous" ]; then
+          if [ "$current" != "$latest" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -36,7 +37,7 @@ jobs:
         if: steps.version.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: v${{ steps.version.outputs.current }}
+          TAG: ${{ steps.version.outputs.current }}
         run: |
           git tag "$TAG"
           git push origin "$TAG"
