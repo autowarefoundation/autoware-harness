@@ -9,6 +9,7 @@ for manifest in \
     .codex-plugin/plugin.json \
     .cursor-plugin/plugin.json \
     .github/plugin/plugin.json \
+    plugin.json \
     .github/plugin/marketplace.json; do
     sed -i -E "s/^([[:space:]]*\"version\":[[:space:]]*)\"[^\"]*\"/\1\"${version}\"/" "$manifest"
 done
