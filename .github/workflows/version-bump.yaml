@@ -6,12 +6,11 @@ on:
       bump:
         description: The type of version bump
         required: true
-        default: patch
         type: choice
         options:
-          - patch
-          - minor
           - major
+          - minor
+          - patch
   pull_request:
     types:
       - closed
