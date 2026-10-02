@@ -1,0 +1,56 @@
+name: pr-labeler
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - name: Label by conventional-commit type
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const known = [
+              "feat", "fix", "docs", "style", "refactor",
+              "perf", "test", "build", "ci", "chore", "revert",
+            ];
+            const title = context.payload.pull_request.title;
+            const match = title.match(/^(\w+)(\([^)]*\))?!?:\s/);
+            const type = match && known.includes(match[1]) ? match[1] : null;
+
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+            const names = labels.map((label) => label.name);
+
+            for (const name of names) {
+              if (known.includes(name) && name !== type) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  name,
+                });
+              }
+            }
+
+            if (type && !names.includes(type)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: [type],
+              });
+            }

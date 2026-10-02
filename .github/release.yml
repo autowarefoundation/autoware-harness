@@ -2,6 +2,8 @@ changelog:
   exclude:
     labels:
       - ignore-for-release
+    authors:
+      - dependabot[bot]
   categories:
     - title: 💥 Breaking Changes
       labels:
@@ -18,11 +20,6 @@ changelog:
       labels:
         - docs
         - documentation
-    - title: 📦 Dependencies
-      labels:
-        - dependencies
-        - github-actions
-        - pre-commit
     - title: 🧹 Other Changes
       labels:
         - "*"

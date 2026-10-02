@@ -48,4 +48,6 @@ Dependabot pull requests go through the same `pre-commit` and `DCO` checks as an
 
 ## Changelog
 
-`gh release create --generate-notes` in [`tag-release`](../.github/workflows/tag-release.yaml) reads [`.github/release.yml`](../.github/release.yml) to group merged pull requests into the release notes by label (for example `feat`, `fix`, `docs`, `dependencies`). A pull request without a matching label falls into the catch-all "Other Changes" section, so label pull requests with their change type to get a well-organized changelog.
+`gh release create --generate-notes` in [`tag-release`](../.github/workflows/tag-release.yaml) reads [`.github/release.yml`](../.github/release.yml) to group merged pull requests into the release notes by label. The [`pr-labeler`](../.github/workflows/pr-labeler.yaml) workflow applies that label automatically, from the Conventional Commit type (`feat`, `fix`, `docs`, …) at the start of the pull request title — the same title format `semantic-pull-request` already enforces. A pull request whose title carries no recognized type falls into the catch-all "Other Changes" section.
+
+Dependabot pull requests are excluded from the changelog entirely (`changelog.exclude.authors` in `.github/release.yml`), and `pr-labeler` skips them, since their dependency bumps are routine and not notable release content.
