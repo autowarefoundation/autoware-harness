@@ -11,12 +11,18 @@ on:
           - major
           - minor
           - patch
+  push:
+    branches:
+      - main
+    paths:
+      - .claude-plugin/plugin.json
 
 permissions:
   contents: read
 
 jobs:
   bump:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,24 +53,7 @@ jobs:
           echo "next=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
 
       - name: Bump plugin manifests
-        env:
-          NEXT_VERSION: ${{ steps.version.outputs.next }}
-        run: |
-          for manifest in \
-            .claude-plugin/plugin.json \
-            .codex-plugin/plugin.json \
-            .cursor-plugin/plugin.json \
-            .github/plugin/plugin.json; do
-            tmp=$(mktemp)
-            jq --arg v "$NEXT_VERSION" '.version = $v' "$manifest" > "$tmp"
-            mv "$tmp" "$manifest"
-          done
-
-          tmp=$(mktemp)
-          jq --arg v "$NEXT_VERSION" \
-            '.metadata.version = $v | .plugins[0].version = $v' \
-            .github/plugin/marketplace.json > "$tmp"
-          mv "$tmp" .github/plugin/marketplace.json
+        run: .github/scripts/bump-manifest-versions.sh "${{ steps.version.outputs.next }}"
 
       - name: Open release pull request
         uses: peter-evans/create-pull-request@v7
@@ -82,4 +71,39 @@ jobs:
 
             See [docs/release.md](../../docs/release.md) for the versioning policy.
 
-            Merging this PR to `main` triggers the `tag-release` workflow, which tags `${{ steps.version.outputs.next }}` and publishes the GitHub Release.
+            Merging this PR to `main` triggers the `tag-release` job below, which tags `${{ steps.version.outputs.next }}` and drafts the GitHub Release.
+
+  tag-release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect version change
+        id: version
+        run: |
+          current=$(jq -r .version .claude-plugin/plugin.json)
+          latest=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          latest=${latest:-0.0.0}
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          if [ "$current" != "$latest" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag and draft release
+        if: steps.version.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.current }}
+        run: |
+          gh release create "$TAG" \
+            --target "${{ github.sha }}" \
+            --title "v$TAG" \
+            --generate-notes \
+            --draft

@@ -26,14 +26,14 @@ The other manifests without a `version` field (`.claude-plugin/marketplace.json`
 
 ## Release procedure
 
-Releasing is a two-step, manually triggered process:
+Releasing is a two-step process, driven by the single [`version-bump`](../.github/workflows/version-bump.yaml) workflow:
 
-1. **Bump.** A maintainer dispatches the [`version-bump`](../.github/workflows/version-bump.yaml) workflow from `main` and picks `major`, `minor`, or `patch`. The workflow reads the latest `MAJOR.MINOR.PATCH` tag (or `0.0.0` if none exists), computes the next version, updates every manifest listed above, and opens a draft pull request against `main`.
+1. **Bump.** A maintainer dispatches `version-bump` from `main` (`workflow_dispatch`) and picks `major`, `minor`, or `patch`. Its `bump` job reads the latest `MAJOR.MINOR.PATCH` tag (or `0.0.0` if none exists), computes the next version, runs [`.github/scripts/bump-manifest-versions.sh`](../.github/scripts/bump-manifest-versions.sh) to update every manifest listed above, and opens a draft pull request against `main`.
 2. **Review and merge.** A maintainer reviews the draft pull request like any other change (DCO — Developer Certificate of Origin, `pre-commit`, `semantic-pull-request` checks all run on it), marks it ready, and merges it into `main`.
 
-Merging the release pull request changes `.claude-plugin/plugin.json` on `main`, which triggers the [`tag-release`](../.github/workflows/tag-release.yaml) workflow. That workflow compares the manifest's `version` field against the latest existing tag, and if they differ, creates the `MAJOR.MINOR.PATCH` tag and drafts the corresponding GitHub Release (titled `vMAJOR.MINOR.PATCH`) with auto-generated notes. A maintainer reviews the draft and publishes it manually.
+Merging the release pull request pushes the new `.claude-plugin/plugin.json` to `main`, which triggers `version-bump`'s `tag-release` job (`push`). That job compares the manifest's `version` field against the latest existing tag, and if they differ, runs `gh release create <version> --target <sha> --title v<version> --generate-notes --draft`, which both creates the `MAJOR.MINOR.PATCH` tag and drafts the GitHub Release (titled `vMAJOR.MINOR.PATCH`) in one call. A maintainer reviews the draft and publishes it manually.
 
-No release step runs automatically from a regular commit or merge to `main`; a release only happens when a maintainer explicitly dispatches the `version-bump` workflow.
+No release step runs automatically from a regular commit or merge to `main`; a release only happens when a maintainer explicitly dispatches `version-bump`.
 
 **Note:** `version-bump` opens the pull request with `secrets.RELEASE_PR_TOKEN` when configured, falling back to the default `GITHUB_TOKEN`. A pull request opened with the default `GITHUB_TOKEN` does not trigger other `pull_request`-triggered workflows (DCO, `pre-commit`, `semantic-pull-request`), so a maintainer must configure `RELEASE_PR_TOKEN` with a token from a real user or GitHub App to keep those checks running on the release pull request.
 
@@ -48,6 +48,6 @@ Dependabot pull requests go through the same `pre-commit` and `DCO` checks as an
 
 ## Changelog
 
-`gh release create --generate-notes` in [`tag-release`](../.github/workflows/tag-release.yaml) reads [`.github/release.yml`](../.github/release.yml) to group merged pull requests into the release notes by label. The [`pr-labeler`](../.github/workflows/pr-labeler.yaml) workflow applies that label automatically, from the Conventional Commit type (`feat`, `fix`, `docs`, …) at the start of the pull request title — the same title format `semantic-pull-request` already enforces. A pull request whose title carries no recognized type falls into the catch-all "Other Changes" section.
+`gh release create --generate-notes` in `version-bump`'s `tag-release` job reads [`.github/release.yml`](../.github/release.yml) to group merged pull requests into the release notes by label. The [`pr-labeler`](../.github/workflows/pr-labeler.yaml) workflow applies that label automatically, from the Conventional Commit type (`feat`, `fix`, `docs`, …) at the start of the pull request title — the same title format `semantic-pull-request` already enforces. A pull request whose title carries no recognized type falls into the catch-all "Other Changes" section.
 
 Dependabot pull requests are excluded from the changelog entirely (`changelog.exclude.authors` in `.github/release.yml`), and `pr-labeler` skips them, since their dependency bumps are routine and not notable release content.
