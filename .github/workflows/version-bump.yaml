@@ -89,7 +89,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           CURRENT_VERSION: ${{ steps.pre-check.outputs.current }}
           NEXT_VERSION: ${{ steps.version.outputs.next }}
-          LABEL_NAME: ${{ steps.ensure-label-exists.outputs.label_name }}
         run: |
           # Build the body with printf so that no YAML indentation leaks in and
           # turns the second paragraph into a Markdown code block
@@ -104,7 +103,7 @@ jobs:
             --draft \
             --title "chore(release): $NEXT_VERSION" \
             --body "$body" \
-            --label "$LABEL_NAME"; then
+            --label "release:bump-version"; then
             echo "✅ Successfully created a PR."
             echo "pr_created=true" >> "$GITHUB_OUTPUT"
           else
