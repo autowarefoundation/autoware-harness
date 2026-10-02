@@ -45,3 +45,7 @@ No release step runs automatically from a regular commit or merge to `main`; a r
 - `pre-commit` — the hook `rev` values pinned in [`.pre-commit-config.yaml`](../.pre-commit-config.yaml).
 
 Dependabot pull requests go through the same `pre-commit` and `DCO` checks as any other pull request before merging. This project has no `package.json` yet; if one is introduced, add an `npm` entry to `dependabot.yml`.
+
+## Changelog
+
+`gh release create --generate-notes` in [`tag-release`](../.github/workflows/tag-release.yaml) reads [`.github/release.yml`](../.github/release.yml) to group merged pull requests into the release notes by label (for example `feat`, `fix`, `docs`, `dependencies`). A pull request without a matching label falls into the catch-all "Other Changes" section, so label pull requests with their change type to get a well-organized changelog.
