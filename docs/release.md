@@ -31,7 +31,7 @@ Releasing is a two-step, manually triggered process:
 1. **Bump.** A maintainer dispatches the [`version-bump`](../.github/workflows/version-bump.yaml) workflow from `main` and picks `major`, `minor`, or `patch`. The workflow reads the latest `MAJOR.MINOR.PATCH` tag (or `0.0.0` if none exists), computes the next version, updates every manifest listed above, and opens a draft pull request against `main`.
 2. **Review and merge.** A maintainer reviews the draft pull request like any other change (DCO — Developer Certificate of Origin, `pre-commit`, `semantic-pull-request` checks all run on it), marks it ready, and merges it into `main`.
 
-Merging the release pull request changes `.claude-plugin/plugin.json` on `main`, which triggers the [`tag-release`](../.github/workflows/tag-release.yaml) workflow. That workflow compares the manifest's `version` field against the latest existing tag, and if they differ, creates the `MAJOR.MINOR.PATCH` tag and publishes the corresponding GitHub Release with auto-generated notes.
+Merging the release pull request changes `.claude-plugin/plugin.json` on `main`, which triggers the [`tag-release`](../.github/workflows/tag-release.yaml) workflow. That workflow compares the manifest's `version` field against the latest existing tag, and if they differ, creates the `MAJOR.MINOR.PATCH` tag and drafts the corresponding GitHub Release (titled `vMAJOR.MINOR.PATCH`) with auto-generated notes. A maintainer reviews the draft and publishes it manually.
 
 No release step runs automatically from a regular commit or merge to `main`; a release only happens when a maintainer explicitly dispatches the `version-bump` workflow.
 
