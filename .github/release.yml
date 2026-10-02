@@ -5,21 +5,15 @@ changelog:
     authors:
       - dependabot[bot]
   categories:
-    - title: 💥 Breaking Changes
-      labels:
-        - breaking-change
     - title: 🚀 Features
       labels:
         - feat
-        - enhancement
     - title: 🐛 Bug Fixes
       labels:
         - fix
-        - bug
     - title: 📝 Documentation
       labels:
         - docs
-        - documentation
     - title: 🧹 Other Changes
       labels:
         - "*"
