@@ -6,11 +6,12 @@ on:
       bump:
         description: The type of version bump
         required: true
+        default: patch
         type: choice
         options:
-          - major
-          - minor
           - patch
+          - minor
+          - major
   pull_request:
     types:
       - closed
@@ -61,7 +62,15 @@ jobs:
       - name: Compute next version
         id: version
         run: |
-          IFS=. read -r major minor patch <<< "${{ steps.pre-check.outputs.current }}"
+          latest_tag=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)
+          if [ -z "$latest_tag" ]; then
+            echo "No tag matching x.y.z found. Falling back to 0.0.0 as the latest tag."
+            latest_tag=0.0.0
+          else
+            echo "Latest tag: $latest_tag"
+          fi
+
+          IFS=. read -r major minor patch <<< "$latest_tag"
           case "${{ inputs.bump }}" in
             major)
               major=$((major + 1)); minor=0; patch=0
@@ -73,6 +82,7 @@ jobs:
               patch=$((patch + 1))
               ;;
           esac
+          echo "current=$latest_tag" >> "$GITHUB_OUTPUT"
           echo "next=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
 
       - name: Bump version and push the branch
@@ -87,7 +97,8 @@ jobs:
         id: create-pr
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          CURRENT_VERSION: ${{ steps.pre-check.outputs.current }}
+          LABEL_NAME: release:bump-version
+          CURRENT_VERSION: ${{ steps.version.outputs.current }}
           NEXT_VERSION: ${{ steps.version.outputs.next }}
         run: |
           # Build the body with printf so that no YAML indentation leaks in and
@@ -103,7 +114,7 @@ jobs:
             --draft \
             --title "chore(release): $NEXT_VERSION" \
             --body "$body" \
-            --label "release:bump-version"; then
+            --label "$LABEL_NAME"; then
             echo "✅ Successfully created a PR."
             echo "pr_created=true" >> "$GITHUB_OUTPUT"
           else
