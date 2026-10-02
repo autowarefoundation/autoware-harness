@@ -26,4 +26,7 @@ When making a commit, always add `--signoff` flag.
 
 ### PR process
 
-When an agent creates a PR, it must submit it as a draft PR. Leave it draft until the maintainer opens it up, or until the user gives approval from the prompt and tells the agent to mark it as ready.
+When an agent creates a PR, it must
+
+- create the PR following `.github/pull_request_template.md`
+- submit it as a draft PR. Leave it draft until the maintainer opens it up, or until the user gives approval from the prompt and tells the agent to mark it as ready.
