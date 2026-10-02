@@ -12,7 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PA
 
 A release tag is named `MAJOR.MINOR.PATCH`, with no `v` prefix, so `git tag --list --sort=-v:refname | head -n1` parses it directly.
 
-A release bumps the `version` field of every plugin manifest at once, so all supported coding agents (see [development.md](./development.md)) observe the same version:
+A release bumps the `version` field of every plugin manifest at once, so all supported coding agents (see [contributing.md](./contributing.md)) observe the same version:
 
 - `.claude-plugin/plugin.json`
 - `.codex-plugin/plugin.json`

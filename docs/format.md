@@ -43,7 +43,7 @@ to explicitly declare as a human triggered command (NOTE: this is a Claude exten
 If the skill is expected to work as a `SubAgent`, add
 
 - `context: fork`
-- `agent: Explore | Plan`
+- `agent: Explore | Plan` (optional)
 
 See [sub-agent.md](./sub-agent.md)
 
@@ -65,7 +65,7 @@ For skills that work as `SubAgent`:
 
 - include "Report" section at the end of the body
 - define the format of findings (bullet points, table, etc.)
-- do not include apply / edit steps
+- avoid including edit steps
 
 ### Styles (WIP)
 
