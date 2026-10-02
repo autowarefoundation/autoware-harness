@@ -38,6 +38,8 @@ All skills start with `awh-` (abbreviation of `Auto Ware Harness`), following `<
   - The skills provide each domain's glossary, known expertise in the domain, unique keywords with special meaning, etc.
 - `interface`
   - The skills relate to Autoware's internal / external interface with other systems.
+- `build`
+  - The skills relate to build process and options.
 - `coding`
   - The skills relate to software design and coding styles per framework, programming language, etc. across Autoware project
 - `component`
