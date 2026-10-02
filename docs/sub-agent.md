@@ -32,7 +32,7 @@ Besides, `Agent` is out of the development scope of this project so far (See [pl
 In `autoware-harness`, `SubAgent` is a variant of `Skill` that is placed under `skills/` directory with the following properties:
 
 - `context: fork`
-- `agent: Explore | Plan`
+- `agent: Explore | Plan` (optional)
 
 `context: fork` and `agent` are Claude extensions, so a `SubAgent` skill degrades on other platforms and runs in the caller's context instead of an isolated one. Prose-style prompt like "run this skill in an isolated context" does not solve the issue because it is already read as a skill in the main context. To achieve complete isolation in cross-platform manner, the `SubAgent` should be distributed through `agents` manifest, which is out of the scope of this project due to packaging policy (see [platform.md](./platform.md)).
 

@@ -11,7 +11,7 @@ This document describes development rules for **this project**. Distributed skil
 
 Refer to [design.md](./docs/design.md) at first to understand the repository scope and structure.
 
-Then refer to [development.md](./docs/development.md) and run `/create-new-skill` when one develops new skills.
+Then refer to [contributing.md](./docs/contributing.md) and run `/create-new-skill` when one develops new skills.
 
 ### Git strategy
 
@@ -19,7 +19,6 @@ To avoid the accident in which multiple agents (including the user themselves) e
 
 **Request user approval** in following situations:
 
-- before directly editing files on the repository
 - before merging worktree branches into the feature branch
 
 When making a commit, always add `--signoff` flag.

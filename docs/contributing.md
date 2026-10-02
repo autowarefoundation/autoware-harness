@@ -1,4 +1,4 @@
-# Development Guide
+# Contribution Guide
 
 ## Supported agents
 
@@ -33,7 +33,9 @@ Apply `/techinical-english` skill before making PRs.
 
 ## Implementation
 
-See [format.md](./format.md).
+When you create a new skill, it is recommended to use `/create-new-skill` skill on this repository.
+
+See [format.md](./format.md) for more detail.
 
 ### Agent vs Skill vs Command
 

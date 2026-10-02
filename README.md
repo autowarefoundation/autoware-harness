@@ -59,9 +59,9 @@ Coding Agents will automatically select and load relevant skills. Or you can exp
 
 If any issues are found (the agent not working appropriately, skills/commands not recognized, etc.) please submit a PR or an issue following the template.
 
-## Development Guide
+## Contribution Guide
 
-See [docs/development.md](docs/development.md).
+See [docs/contributing.md](docs/contributing.md).
 
 ## Security
 
