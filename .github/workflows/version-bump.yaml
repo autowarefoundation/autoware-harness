@@ -1,0 +1,101 @@
+name: version-bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Make a PR to bump up manifest files
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read
+
+jobs:
+  bump:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Compute next version
+        id: version
+        run: |
+          current=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          current=${current:-0.0.0}
+          IFS=. read -r major minor patch <<< "$current"
+          case "${{ inputs.bump }}" in
+            major)
+              major=$((major + 1)); minor=0; patch=0
+              ;;
+            minor)
+              minor=$((minor + 1)); patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "next=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+
+      - name: Bump plugin manifests
+        run: .github/scripts/bump-manifest-versions.sh "${{ steps.version.outputs.next }}"
+
+      - name: Open release pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: "chore(release): bump version to ${{ steps.version.outputs.next }}"
+          signoff: true
+          branch: release/${{ steps.version.outputs.next }}
+          delete-branch: true
+          base: main
+          draft: true
+          title: "chore(release): ${{ steps.version.outputs.next }}"
+          labels: release:bump-version
+          body: |
+            Bumps the plugin manifest version from `${{ steps.version.outputs.current }}` to `${{ steps.version.outputs.next }}` (`${{ inputs.bump }}`).
+
+            Merging this PR (kept labeled `release:bump-version`) triggers the `tag-release` job, which tags and drafts the GitHub Release.
+
+  tag-release:
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      contains(join(github.event.pull_request.labels.*.name, ','), 'release:bump-version')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Tag and draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(jq -r .version .claude-plugin/plugin.json)
+          gh release create "$tag" \
+            --target "${{ github.event.pull_request.merge_commit_sha }}" \
+            --title "v$tag" \
+            --generate-notes \
+            --draft

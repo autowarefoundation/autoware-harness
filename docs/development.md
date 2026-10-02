@@ -11,7 +11,7 @@ This repository supports the following coding agents:
 
 ## Release
 
-See [roadmaps.md](./roadmaps.md).
+See [release.md](./release.md).
 
 ## Development Environment
 
