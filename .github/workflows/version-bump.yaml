@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: Make a PR to bump up manifest files
+        description: The type of version bump
         required: true
+        default: patch
         type: choice
         options:
-          - major
-          - minor
           - patch
+          - minor
+          - major
   pull_request:
     types:
       - closed
@@ -25,10 +26,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
       - name: Generate token
         id: generate-token
         uses: actions/create-github-app-token@v3
@@ -36,12 +33,74 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Set git config
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          APP_SLUG: ${{ steps.generate-token.outputs.app-slug }}
+        run: |
+          # Commit as the GitHub App bot so that the DCO sign-off resolves to a real user
+          user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+      - name: Generate PR branch name
+        id: generate-branch-name
+        run: echo "branch_name=bump/main-with-${{ inputs.bump }}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create a new working branch for the PR
+        run: |
+          git fetch --tags origin main
+          git checkout -b "${{ steps.generate-branch-name.outputs.branch_name }}" origin/main
+
+      # Pre-check version mismatch between the latest tag and all the manifests:
+      # - If there is a mismatch, realign the manifests and commit the changes
+      # - If there is no mismatch, do nothing
+      - name: Pre-check version mismatch
+        id: pre-check
+        run: |
+          latest_tag=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          if [ -z "$latest_tag" ]; then
+            echo "No tag matching x.y.z found. Falling back to 0.0.0 as the latest tag."
+            latest_tag=0.0.0
+          else
+            echo "Latest tag: $latest_tag"
+          fi
+
+          # Report every manifest whose version is malformed or out of sync before rewriting it
+          while IFS= read -r manifest; do
+            candidate=$(jq -r .version "$manifest")
+            if [ "$candidate" = "$latest_tag" ]; then
+              continue
+            fi
+            if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "$manifest has inconsistent version $candidate (expected $latest_tag). Fixing to $latest_tag..."
+            else
+              echo "$manifest has invalid format version $candidate (expected x.y.z). Fixing to $latest_tag..."
+            fi
+          done < <(git ls-files '*plugin*/plugin.json')
+
+          # Fix all inconsistent and invalid versions forcibly
+          .github/scripts/bump-manifest-versions.sh "$latest_tag"
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "All manifests already match $latest_tag. Nothing to commit."
+          else
+            git commit --signoff --all --message "fix: align all manifest versions with the latest tag ($latest_tag)"
+          fi
+
+          echo "current=$latest_tag" >> "$GITHUB_OUTPUT"
+
       - name: Compute next version
         id: version
         run: |
-          current=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
-          current=${current:-0.0.0}
-          IFS=. read -r major minor patch <<< "$current"
+          IFS=. read -r major minor patch <<< "${{ steps.pre-check.outputs.current }}"
           case "${{ inputs.bump }}" in
             major)
               major=$((major + 1)); minor=0; patch=0
@@ -53,28 +112,79 @@ jobs:
               patch=$((patch + 1))
               ;;
           esac
-          echo "current=$current" >> "$GITHUB_OUTPUT"
           echo "next=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
 
-      - name: Bump plugin manifests
-        run: .github/scripts/bump-manifest-versions.sh "${{ steps.version.outputs.next }}"
+      - name: Bump version and push the branch
+        env:
+          NEXT_VERSION: ${{ steps.version.outputs.next }}
+        run: |
+          .github/scripts/bump-manifest-versions.sh "$NEXT_VERSION"
 
-      - name: Open release pull request
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ steps.generate-token.outputs.token }}
-          commit-message: "chore(release): bump version to ${{ steps.version.outputs.next }}"
-          signoff: true
-          branch: release/${{ steps.version.outputs.next }}
-          delete-branch: true
-          base: main
-          draft: true
-          title: "chore(release): ${{ steps.version.outputs.next }}"
-          labels: release:bump-version
-          body: |
-            Bumps the plugin manifest version from `${{ steps.version.outputs.current }}` to `${{ steps.version.outputs.next }}` (`${{ inputs.bump }}`).
+          # Verify that every manifest ended up on the same valid version
+          while IFS= read -r manifest; do
+            updated_version=$(jq -r .version "$manifest")
+            if [ "$updated_version" != "$NEXT_VERSION" ]; then
+              echo "❌ $manifest has version $updated_version (expected $NEXT_VERSION)"
+              exit 1
+            fi
+            echo "✅ $manifest is on $updated_version"
+          done < <(git ls-files '*plugin*/plugin.json')
 
-            Merging this PR (kept labeled `release:bump-version`) triggers the `tag-release` job, which tags and drafts the GitHub Release.
+          git commit --signoff --all --message "chore(release): bump version to $NEXT_VERSION"
+          git push origin "${{ steps.generate-branch-name.outputs.branch_name }}"
+
+      - name: Ensure label exists
+        id: ensure-label-exists
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          label_name=release:bump-version
+          label_color=f29513 # orange
+          label_description="Label to trigger release workflow"
+          if ! gh label list --json name --jq '.[].name' | grep -qx "$label_name"; then
+            echo "Label '$label_name' does not exist, creating it..."
+            gh label create "$label_name" --color "$label_color" --description "$label_description"
+          else
+            echo "Label '$label_name' already exists."
+          fi
+          echo "label_name=$label_name" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          CURRENT_VERSION: ${{ steps.pre-check.outputs.current }}
+          NEXT_VERSION: ${{ steps.version.outputs.next }}
+          LABEL_NAME: ${{ steps.ensure-label-exists.outputs.label_name }}
+        run: |
+          # Build the body with printf so that no YAML indentation leaks in and
+          # turns the second paragraph into a Markdown code block
+          body=$(printf '%s\n\n%s\n' \
+            "Bumps the plugin manifest version from \`$CURRENT_VERSION\` to \`$NEXT_VERSION\` (\`${{ inputs.bump }}\`)." \
+            "Merging this PR (kept labeled \`$LABEL_NAME\`) triggers the \`tag-release\` job, which tags and drafts the GitHub Release.")
+
+          # The label is what the tag-release job keys off after the merge
+          if gh pr create \
+            --base main \
+            --head "${{ steps.generate-branch-name.outputs.branch_name }}" \
+            --draft \
+            --title "chore(release): $NEXT_VERSION" \
+            --body "$body" \
+            --label "$LABEL_NAME"; then
+            echo "✅ Successfully created a PR."
+            echo "pr_created=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ Failed to create a PR."
+            echo "pr_created=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # (Idempotent) Delete the remote branch if the PR creation failed
+      - name: Delete the remote branch if the PR creation failed
+        if: ${{ steps.create-pr.outputs.pr_created == 'false' }}
+        run: |
+          echo "Deleting the remote branch ${{ steps.generate-branch-name.outputs.branch_name }} ..."
+          git push origin --delete "${{ steps.generate-branch-name.outputs.branch_name }}"
+          exit 1
 
   tag-release:
     if: |
