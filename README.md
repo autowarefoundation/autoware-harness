@@ -46,6 +46,12 @@ Open the plugin browser inside a Codex session, add `autowarefoundation/autoware
 codex plugin marketplace add autowarefoundation/autoware-harness
 ```
 
+### Antigravity CLI (`agy`)
+
+```bash
+agy plugin install https://github.com/autowarefoundation/autoware-harness
+```
+
 ### Cursor
 
 1. Dashboard → Plugins → Team Marketplaces → Add Marketplace → Import from Repo, and point it at `autowarefoundation/autoware-harness`.
