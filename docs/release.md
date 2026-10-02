@@ -10,7 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PA
 
 ## Version surface
 
-The Git tag on `main`, not any manifest file, is the source of truth for the current version. A release tag is named `MAJOR.MINOR.PATCH`, with no `v` prefix, which keeps it trivial to parse (`git tag --list --sort=-v:refname | head -n1`). When no such tag exists yet, the current version is treated as `0.0.0`.
+A release tag is named `MAJOR.MINOR.PATCH`, with no `v` prefix, so `git tag --list --sort=-v:refname | head -n1` parses it directly.
 
 A release bumps the `version` field of every plugin manifest at once, so all supported coding agents (see [development.md](./development.md)) observe the same version:
 
@@ -22,9 +22,5 @@ A release bumps the `version` field of every plugin manifest at once, so all sup
 
 ## Release procedure
 
-Releasing is a two-step process, driven by the single [`version-bump`](../.github/workflows/version-bump.yaml) workflow:
-
-1. **Bump PR and merge.** A maintainer dispatches `version-bump` from `main` (`workflow_dispatch`) and picks `major`, `minor`, or `patch`. Its `bump` job reads the latest `MAJOR.MINOR.PATCH` tag (or `0.0.0` if none exists), computes the next version, and opens a draft pull request against `main`, labeled `release:bump-version`. A maintainer reviews it like any other change (DCO, `pre-commit`, `semantic-pull-request` checks all run on it), marks it ready, and merges it, keeping the label.
-2. **Create release.** Merging a pull request labeled `release:bump-version` triggers `version-bump`'s `tag-release` job (`pull_request: closed`). Since only the `bump` job ever applies that label, and only to a pull request that actually changed the version, the job trusts the label and reads the manifest's `version` field at the merge commit directly — no separate check against the latest tag. It runs `gh release create`, which both creates the `MAJOR.MINOR.PATCH` tag and drafts the GitHub Release (titled `vMAJOR.MINOR.PATCH`) in one call. A maintainer reviews the draft and publishes it manually.
-
-**Note:** `version-bump`'s `bump` job opens the pull request with a token from `actions/create-github-app-token`, authenticated as a GitHub App via the organization-wide `secrets.APP_ID` / `secrets.PRIVATE_KEY` — the same pattern other `autowarefoundation` projects use (for example `autoware_lanelet2_extension`'s `bump-new-version.yaml`). A pull request opened with the default `GITHUB_TOKEN` would not trigger other `pull_request`-triggered workflows (DCO, `pre-commit`, `semantic-pull-request`), since GitHub suppresses workflow runs caused by the default token; the App token behaves like a real actor, so those checks still run on the release pull request.
+1. **Bump pull request and merge.** A maintainer dispatches `version-bump` from `main` (`workflow_dispatch`) and picks `major`, `minor`, or `patch`. Its `bump` job reads the latest `MAJOR.MINOR.PATCH` tag, computes the next version, and opens a draft pull request against `main`, labeled `release:bump-version`. A maintainer reviews it, marks it ready, and merges it, keeping the label.
+2. **Create release.** Merging a pull request labeled `release:bump-version` triggers `version-bump`'s `tag-release` job (`pull_request: closed`). The job reads the manifest's `version` field at the merge commit and runs `gh release create`, which both creates the `MAJOR.MINOR.PATCH` tag and drafts the GitHub Release (titled `vMAJOR.MINOR.PATCH`). A maintainer reviews the draft and publishes it manually.
