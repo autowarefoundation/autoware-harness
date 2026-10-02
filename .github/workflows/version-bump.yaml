@@ -6,12 +6,11 @@ on:
       bump:
         description: The type of version bump
         required: true
-        default: patch
         type: choice
         options:
-          - patch
-          - minor
           - major
+          - minor
+          - patch
   pull_request:
     types:
       - closed
@@ -59,44 +58,6 @@ jobs:
           git fetch --tags origin main
           git checkout -b "${{ steps.generate-branch-name.outputs.branch_name }}" origin/main
 
-      # Pre-check version mismatch between the latest tag and all the manifests:
-      # - If there is a mismatch, realign the manifests and commit the changes
-      # - If there is no mismatch, do nothing
-      - name: Pre-check version mismatch
-        id: pre-check
-        run: |
-          latest_tag=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
-          if [ -z "$latest_tag" ]; then
-            echo "No tag matching x.y.z found. Falling back to 0.0.0 as the latest tag."
-            latest_tag=0.0.0
-          else
-            echo "Latest tag: $latest_tag"
-          fi
-
-          # Report every manifest whose version is malformed or out of sync before rewriting it
-          while IFS= read -r manifest; do
-            candidate=$(jq -r .version "$manifest")
-            if [ "$candidate" = "$latest_tag" ]; then
-              continue
-            fi
-            if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "$manifest has inconsistent version $candidate (expected $latest_tag). Fixing to $latest_tag..."
-            else
-              echo "$manifest has invalid format version $candidate (expected x.y.z). Fixing to $latest_tag..."
-            fi
-          done < <(git ls-files '*plugin*/plugin.json')
-
-          # Fix all inconsistent and invalid versions forcibly
-          .github/scripts/bump-manifest-versions.sh "$latest_tag"
-
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "All manifests already match $latest_tag. Nothing to commit."
-          else
-            git commit --signoff --all --message "fix: align all manifest versions with the latest tag ($latest_tag)"
-          fi
-
-          echo "current=$latest_tag" >> "$GITHUB_OUTPUT"
-
       - name: Compute next version
         id: version
         run: |
@@ -119,35 +80,8 @@ jobs:
           NEXT_VERSION: ${{ steps.version.outputs.next }}
         run: |
           .github/scripts/bump-manifest-versions.sh "$NEXT_VERSION"
-
-          # Verify that every manifest ended up on the same valid version
-          while IFS= read -r manifest; do
-            updated_version=$(jq -r .version "$manifest")
-            if [ "$updated_version" != "$NEXT_VERSION" ]; then
-              echo "❌ $manifest has version $updated_version (expected $NEXT_VERSION)"
-              exit 1
-            fi
-            echo "✅ $manifest is on $updated_version"
-          done < <(git ls-files '*plugin*/plugin.json')
-
           git commit --signoff --all --message "chore(release): bump version to $NEXT_VERSION"
           git push origin "${{ steps.generate-branch-name.outputs.branch_name }}"
-
-      - name: Ensure label exists
-        id: ensure-label-exists
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: |
-          label_name=release:bump-version
-          label_color=f29513 # orange
-          label_description="Label to trigger release workflow"
-          if ! gh label list --json name --jq '.[].name' | grep -qx "$label_name"; then
-            echo "Label '$label_name' does not exist, creating it..."
-            gh label create "$label_name" --color "$label_color" --description "$label_description"
-          else
-            echo "Label '$label_name' already exists."
-          fi
-          echo "label_name=$label_name" >> "$GITHUB_OUTPUT"
 
       - name: Create pull request
         id: create-pr
