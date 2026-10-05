@@ -27,10 +27,6 @@ devcontainer up --remove-existing-container // when Dockerfile or devcontainer.j
 
 Even if you do not have access to local environment, you can open up `GitHub Codespace` on the repository.
 
-## Proofreading
-
-Apply `/techinical-english` skill before making PRs.
-
 ## Implementation
 
 When you create a new skill, it is recommended to use `/create-new-skill` skill on this repository.
