@@ -4,7 +4,8 @@ This document describes development rules for **this project**. Distributed skil
 
 ## Hooks
 
-- Use `pre-commit` command as the hooks
+- Run the `pre-commit` command to apply the Git hooks
+- Use `/pre-commit` _agent skill_ to lint semantic problems
 - When a worktree branch is merged, remove both the worktree and the branch
 
 ## Development
@@ -27,5 +28,6 @@ When making a commit, always add `--signoff` flag.
 
 When an agent creates a PR, it must
 
+- apply the [hooks](#hooks)
 - create the PR following `.github/pull_request_template.md`
 - submit it as a draft PR. Leave it draft until the maintainer opens it up, or until the user gives approval from the prompt and tells the agent to mark it as ready.
