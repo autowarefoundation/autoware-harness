@@ -45,7 +45,7 @@ skills become available in the next session.
 agy plugin install https://github.com/autowarefoundation/autoware-harness
 ```
 
-Run it in a terminal to reinstall the plugin. Antigravity also updates installed plugins automatically.
+Tell the user to run the command in a terminal to reinstall the plugin.
 
 ## Cursor
 
