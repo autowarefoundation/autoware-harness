@@ -5,7 +5,7 @@
 - `docs/` contains the project documentation.
 - `skills/` contains the resources to be installed.
 - `AGENTS.md` and `.agents/skills/` are the agent prompts used for developing this project. `.agents/skills/` is symlinked to the Claude configuration (`.claude/skills`).
-- `.agents/plugins/marketplace.json`, `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.github/plugin` contain the plugin manifest files for each coding agent.
+- `.agents/plugins/marketplace.json`, `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, and `.github/plugin` contain the plugin manifest files for each coding agent. `plugin.json` at the repository root is the manifest for Antigravity CLI.
 - `.devcontainers/` contains the `devcontainer` settings.
 
 ## Overview

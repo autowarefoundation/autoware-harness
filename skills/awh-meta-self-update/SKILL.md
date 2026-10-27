@@ -39,6 +39,14 @@ Select `autoware-harness` and update it from the plugin manager.
 Open the entry for `autoware-harness` and reinstall it to pick up the current version. Bundled
 skills become available in the next session.
 
+## Antigravity
+
+```text
+agy plugin install https://github.com/autowarefoundation/autoware-harness
+```
+
+Tell the user to run the command in a terminal to reinstall the plugin.
+
 ## Cursor
 
 Cursor documents no command for updating an installed plugin. Report that the update is done from the Cursor plugin UI.

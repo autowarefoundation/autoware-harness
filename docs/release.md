@@ -18,6 +18,7 @@ A release bumps the `version` field of every plugin manifest at once, so all sup
 - `.codex-plugin/plugin.json`
 - `.cursor-plugin/plugin.json`
 - `.github/plugin/plugin.json`
+- `plugin.json` (Antigravity CLI)
 - `.github/plugin/marketplace.json` (`metadata.version` and `plugins[0].version`)
 
 ## Release procedure
